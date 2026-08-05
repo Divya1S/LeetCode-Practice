@@ -1,0 +1,108 @@
+// 1.Brute Force:
+// We can perform shift by taking the first chracter of s moving it to the back and then checking if the newly formed string matches the goal.
+// Since the string of length N can only be rotated N times before it returns to its original state, we only need to perform this shift and compare operation N times.
+
+// class Solution {
+// public:
+//     bool rotateString(string s, string goal) {
+//         // If lengths are different, s can never become goal
+//         if (s.length() != goal.length()) {
+//             return false;
+//         }
+        
+//         int n = s.length();
+        
+//         // Try all possible n shifts
+//         for (int i = 0; i < n; ++i) {
+//             // Check if current rotation matches the goal
+//             if (s == goal) {
+//                 return true;
+//             }
+//             // Perform one shift: take everything from index 1 to the end, 
+//             // and append the first character to the back
+//             s = s.substr(1) + s[0];
+//         }
+        
+//         return false;
+//     }
+// };
+
+// TC: O(n^2) 
+// The loop runs n times. Inside the loop the string comparison takes O(n) times 
+// And s = s.substr(1) + s[0]; string concatenation takes O(n) times.
+
+// SC: O(n) creating a new string during s.substr(1) + s[0]; operation requires allocating memeory for the string of length n at each step of iteration 
+
+// 2. Better Solution:
+// In brute force we constantly created new strings using .substr() which cost O(n) extra memory on every single loop iteration. We can avoid creating any new strings by using two pointers and modulo arithmetic (%) to simulate the rotation in place.
+
+// Instead of actually moving the characters we treat the string as circular. If we start reading s from index 2 and we reach the end we use modulo to wrap back around to index 0.
+
+// class Solution {
+// public:
+//     bool rotateString(string s, string goal) {
+//         if (s.length() != goal.length()) {
+//             return false;
+//         }
+        
+//         int n = s.length();
+        
+//         // i represents the starting index of our "rotated" version of s
+//         for (int i = 0; i < n; ++i) {
+//             bool isMatch = true;
+            
+//             // Check if starting from i matches goal
+//             for (int j = 0; j < n; ++j) {
+//                 // (i + j) % n wraps the index back to the start if it exceeds n-1
+//                 if (s[(i + j) % n] != goal[j]) {
+//                     isMatch = false;
+//                     break; // Mismatch found, no need to check further characters
+//                 }
+//             }
+            
+//             if (isMatch) {
+//                 return true;
+//             }
+//         }
+        
+//         return false;
+//     }
+// };
+
+// TC: O(n^2) worst case. We still have a nested loop. The outer loop runs N times and inner loop checks up to N characters.
+
+// SC: O(1) constant space. We are using just few variables 
+
+
+// Optimal Solution: 
+// This is a math trick for string rotation problems. If you concatenate a string to itself (s + s) the resulting double length string will contain every possible rotation of the original string as a substring 
+// Eg: if s = "abcde" then s + s = "abcdeabcde"
+// Look at the substrings of length 5 inside "abcdeabcde"
+// abcde (0 shifts)
+// bcdea (1 shift)
+// cdeab (2 shifts) -> this is our goal
+// deabc (3 shifts)
+// eabcd (4 shifts)
+// So the entire problem boils down to checking if goal is a substring of s + s
+
+class Solution {
+public:
+    bool rotateString(string s, string goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+
+        //Concatenate s with itself 
+        string doubled_s = s + s;
+
+        //Check if goal is a substring of doubled_s
+        //find() returns npos if the substring is not found 
+        return doubled_s.find(goal) != string::npos;
+    }
+};
+
+TC: O(n) 
+concatenating string takes O(n) time. find() func is highly optimized 
+
+SC: O(n) 
+we have to allocate memory to store the new concatenated string doubled_s. (it is 2n character long)
