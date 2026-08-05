@@ -22,3 +22,28 @@ public:
         return true;
     }
 };
+
+//Since string is just made of standard ASCII characters which total only 256 chars 
+// We can use a simple array instead
+
+class Solution {
+public:
+    bool isIsomorphic(string s, string t) {
+        //Create two arrays of size 256 filled with 0s
+        int map_s[256] = {0};
+        int map_t[245] = {0};
+
+        for (int i = 0; i < s.length(); i++) {
+            //If the last time we saw these letters was at diffrent positions, they don't match
+            if (map_s[s[i]] != map_t[t[i]]) {
+                return false;
+            }
+
+            //Record the current position (i + 1) for both letters 
+            map_s[s[i]] = i + 1;
+            map_t[t[i]] = i + 1;
+        }
+
+        return true;
+    }
+};
