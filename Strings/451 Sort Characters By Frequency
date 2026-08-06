@@ -1,0 +1,153 @@
+// 1.Brute Force:
+// First count the frequencies of each chracter first, and then directly sort the original string based on those frquencies. If 2 characters have the same frequency we sort them by their value to ensure identical chracters group together.
+
+// class Solution {
+// public:
+//     string frequencySort(string s) {
+//         //Count the frequency of each character 
+//         int freq[128] = {0};
+//         for (char c : s) {
+//             freq[c]++;
+//         }
+
+//         //Sort the string using a custom lambda function 
+//         sort(s.begin(), s.end(), [&](char a, char b) {
+//             //If frquencies are the same group identical chracters together 
+//             if (freq[a] == freq[b]) {
+//                 return a > b;
+//             }
+
+//             //Otherwise sort by descending frequency 
+//             return freq[a] > freq[b];
+//         });
+
+//         return s;
+//     }
+// };
+
+// 1. Why Use a Custom Lambda Function?
+// By default, C++'s std::sort only knows how to sort things in ascending, alphabetical, or numerical order (e.g., turning "tree" into "eert").
+
+// However, in this problem, we don't want to sort by the alphabet; we want to sort by frequency. std::sort has no idea what "frequency" is unless we explicitly tell it. A lambda function (an anonymous, inline function) allows us to write a custom rulebook for std::sort to follow. We are essentially saying: "Hey std::sort, don't use your default alphabetical rules. Use this custom rulebook instead."
+
+// 2. What is [&](char a, char b)?
+// This is the syntax for a lambda function in C++ used as our custom comparator.
+
+// [&] (The Capture Clause): This tells the lambda function to capture all variables from the surrounding code by reference. We need this because our custom rulebook needs to look at the freq array we created earlier. Without [&], the lambda wouldn't know what freq is.
+
+// (char a, char b) (The Parameters): When std::sort runs, it constantly picks two characters from your string and asks, "Which one should go first?" It passes these two characters into our lambda as a and b.
+
+// 3. What does freq[a] > freq[b] return, where, and how?
+// What it returns: It evaluates a condition and returns a boolean value: true or false.
+
+// Where it returns: It returns this boolean directly back to the internal std::sort algorithm.
+
+// How std::sort interprets it:
+
+// If it returns true, std::sort puts character a before character b in the sorted string.
+
+// If it returns false, std::sort puts character b before character a.
+
+// Why we wrote it: If character a has a higher frequency than character b (e.g., freq[a] is 3, and freq[b] is 1), 3 > 1 is true. std::sort sees true and puts the more frequent character first. This creates our descending order.
+
+// 4. What does a > b do when frequencies are the same?
+// If a and b appear the exact same number of times (e.g., freq[a] == freq[b]), we have a tie.
+
+// If we don't explicitly break the tie, std::sort might mix up the characters. For example, if we have "cccaaa", 'c' and 'a' both appear 3 times. If we don't handle the tie, the sort might output "cacaca", which is wrong because identical characters must stay grouped together.
+
+// When we return a > b:
+
+// We are comparing the actual ASCII values of the characters.
+
+// For example, if a = 'c' and b = 'a', 'c' > 'a' is true.
+
+// So, 'c' will be placed before 'a'.
+
+// By consistently sorting ties by their alphabetical ASCII values (in this case, reverse alphabetical), we force all the identical characters to clump tightly together, resulting in "cccaaa" or "aaaccc" instead of a jumbled mess. (Note: returning a < b would also work perfectly fine here, as long as its a consistent rule).
+
+// TC: O(nlogn) sorting takes nlogn time.
+// SC: O(1) auxiliary space.
+// The freq array is of fixed size (128 for ASCII characters) which takes constant extra space 
+
+// 2.Better Approach (Max-Heap/Priority queue)
+// Instead of sorting the entire string (which contains duplicate chracters) we can just sort the unique chracters. We can push the unique chracters and their frequencies into Max-Heap(Priority Queue). The heap will automatically keep the characters and their frequencies into a Max-heap. The heap will automatically keep the character with the highest frequency at the top.
+
+// class Solution {
+// public:
+//     string frequencySort(string s) {
+//         //1. Count character frequencies 
+//         unordered_map<char, int> freq;
+//         for (char c : s) {
+//             freq[c]++;
+//         }
+
+//         //2. Push to a max heap. Pairs are sorted by the first element (frequency) by default
+//         priority_queue<pair<int, char>> pq;
+//         for (auto& it : freq) {
+//             pq.push({it.second, it.first});
+//         }
+
+//         //3. Rebuild the string
+//         string result = "";
+//         while (!pq.empty()) {
+//             int count = pq.top().first;
+//             char c = pq.top().second;
+//             pq.pop();
+
+//             //Append the chracter 'count' times 
+//             result.append(count, c);
+//         }
+
+//         return result;
+//     }
+// };
+
+// TC: O(n + klogk)
+// building a freq map takes O(n) 
+// inserting the unique chracters into the priority queue takes O(klogk) k: is no. of unique chracters 
+// rebuilding the string takes O(n)
+// klogk is effectively constant 
+
+// SC: O(k) for storing the frequencies in the hash map and the heap.
+
+// 3.Optimal Approach (Bucket Sort)
+// Becoz the maximum frequency a character can have is the length of the string itself(if the string is entirely one chracter like "aaaa") we can use bucket sort 
+// We create an array of buckets where the index of the bucket represents the frequency. We place each character into the bucket corresponding to its count, and then iterate through the buckets backwards to build the final string.
+
+class Solution {
+public:
+    string frequencySort(string s) {
+        //1. Count character frequencies 
+        int freq[128] = {0};
+        int maxFreq = 0;
+        for (char c : s) {
+            freq[c]++;
+            maxFreq = max(maxFreq, freq[c]);
+        }
+
+        //2.Create buckets. The index represents the frequency 
+        //Size is maxFreq + 1 coz freq goes from 1 to maxFreq
+        vector<vector<char>> buckets(maxFreq + 1);
+        for(int i = 0; i < 128; i++) {
+            if (freq[i] > 0) {
+                buckets[freq[i]].push_back((char)i);
+            }
+        }
+
+        //3. Rebuild the string by reading buckets from highest freq to lowest 
+        string result = "";
+        for (int i = maxFreq; i > 0; i--) {
+            for (char c : buckets[i]) {
+                result.append(i, c);
+            }
+        }
+
+        return result;
+    }
+};
+
+TC: O(n) 
+we do a single pass to count freq a pass over the 128 const ASCII characters to populate buckets, and final pass proportional to n to construct the string. There is no sorting overhead.
+
+SC: O(n) 
+in worst case the buckets vector requires space proportional to the max freq which can be up to N.
