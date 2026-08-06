@@ -1,0 +1,144 @@
+Description: Given a string s consisting of lowercase English letters and a positive integer k, return the total number of substrings that contain exactly k distinct characters.
+A substring is a contiguous sequence of characters within a string.
+
+Example 1:
+
+Input: s = "pqpqs", k = 2
+
+Output: 7
+
+Explanation: All substrings with exactly 2 distinct characters are: "pq", "pqp", "pqpq", "qp", "qpq", "pqs", "qs".
+The total count is 7.
+
+Example 2:
+
+Input: s = "abcbaa", k = 3
+
+Output: 5
+
+Explanation: All substrings with exactly 3 distinct characters are: "abc", "abcb", "abcba", "bcba", "cbaa". 
+The total count is 5.
+
+1. Brute Force:
+The most naive way to solve this is generate every possible substring count the number of distinct chracters in each and check if it exactly equals k 
+
+int countSubstrings(string s, int k) {
+    int n = s.length();
+    int count = 0;
+
+    //Generate all starting point
+    for (int i = 0; i < n; i++) {
+        //Generate all ending points 
+        for (int j = i; j < n; j++) {
+            unordered_set<char> distinctChars;
+            //Check distinct chracters in the current substring
+            for (int x = i; x <= j; x++) {
+                distinctChars.insert(s[x]);
+            }
+            if (distinctChars.size() == k) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+TC: O(n^3) 
+n is length of string 
+nested loop takes O(n^2) to generate start and end points and inserting it into the set 
+takes O(n) in worst case.
+
+SC: O(k)
+for storing upto k distinct chracters in the ordered_set
+
+2. Better Approach
+We can optimize the brute force by avoiding the third loop. 
+Instead of re-evaluating the entire substring from scratch, we can maintain the character frequencies on the fly as we expand our right pointer j. 
+Once the distinct character count exceeds $k$, we can immediately break out of the inner loop since adding more characters will never decrease the distinct count.
+
+int countSubstrings(string s, int k) {
+    int n = s.length();
+    int count = 0;
+
+    for (int i = 0; i < n; i++) {
+        vector<int> freq(26, 0);
+        int distinct = 0;
+
+        for (int j = i; j < n; j++) {
+            if (freq[s[j] - 'a'] == 0) { //here freq is 0
+                distinct++; //so distinct increases and increments the freq
+            }
+
+            if (distinct == k) {
+                count++;
+            } else if (distinct > k) {
+                //No need to check further if we already exceeded the k distinct characters 
+                break;
+            }
+        }
+    }
+
+    return count;
+}
+
+TC: O(n^2) 
+n is length of string
+2 nested loops traverse the string 
+Inner operation takes O(1) time using a fixed size frequency 
+
+SC: O(1)
+fixed size array of 26
+
+3. Optimal Approach 
+To achieve linear time complexity we can use sliding window(two-pointer) technique.
+
+Directly finding substrings with exactly k distinct chracters using a sliding window is tricky.
+Coz shrinking the window when you have exactly k chracters might cause you to miss valid 
+substrings. Instead we use a math trick:
+Exactly(k) = Atmost(k) - AtMost(k - 1)
+
+We write a helper func atMost(s, k) that finds the number of strings with at most k distinct chracters in O(n) time 
+
+int atMostKDistinct(const string& s, int k) {
+    if (k < 0) return 0;
+
+    vector<int> freq(26, 0);
+    int left = 0; int right = 0;
+    int distinct = 0;
+    int totalSubstrings = 0;
+
+    while (right < s.length()) {
+        //Expand the window by adding the right character 
+        if (freq[s[right] - 'a'] == 0) {
+            distinct++;
+        }
+        freq[s[right] - 'a']++;
+
+        //Shrink the window from the left if distinct characters exceed k 
+        while (distinct > k) {
+            freq[s[left] - 'a']--;
+            if (freq[s[left] - 'a'] == 0) {
+                distinct--;
+            }
+            left++;
+        }
+
+        //Number of valid substrings ending at 'right' is (right - left + 1)
+        totalSubstrings += (right - left + 1);
+        right++;
+    }
+
+    return totalSubstrings;
+}
+
+int countSubstrings(string s, int k) {
+    return atMostKDistinct(s, k) - atMostKDistinct(s, k - 1);
+}
+
+TC: O(n)
+n is the length of string 
+both left and right pointers traverse the string from left to right exactly once in the atMostKDistinct func
+Calling it twice takes O(2n) = O(n) time 
+
+SC: O(1)
+
