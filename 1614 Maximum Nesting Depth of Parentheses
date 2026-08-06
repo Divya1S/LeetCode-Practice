@@ -1,0 +1,101 @@
+// 1. Naive/Stack-Based (Sub-optimal Space)
+// A common way to handle valid parentheses problem is to use a Stack.
+// Whenever we see an opening bracket ( we push it onto the stack. When we see a closing bracket ) we pop from the stack. The size of the stack at any given point respresents the current nesting depth.
+
+// class Solution {
+// public:
+//     int maxDepth(string s) {
+//         stack<char> st;
+//         int max_depth = 0;
+
+//         for (char c : s) {
+//             if (c == '(') {
+//                 st.push(c);
+//                 //The current depth is the size of the stack
+//                 max_depth = max(max_depth, (int)st.size());
+//             } else if (c == ')') {
+//                 st.pop();
+//             }
+//         }
+
+//         return max_depth;
+//     }
+// };
+
+// 1. What st.size() actually returns
+// When you call st.size(), you might expect it to return a standard int. However, it actually returns a type called size_t (specifically std::stack::size_type).
+
+// size_t is an unsigned integer.
+
+// C++ containers use unsigned integers for their sizes because a container can never have a negative number of elements. Using an unsigned type allows the container to theoretically hold twice as many elements as a standard signed int.
+
+// 2. The std::max Type Mismatch
+// In C++, std::max is a template function. This means the compiler figures out what type of data it is comparing by looking at the arguments you pass in.
+
+// However, std::max has a strict rule: both arguments must be of the exact same type.
+
+// C++
+// int max_depth = 0; // This is a signed integer
+// st.size();         // This is an unsigned integer (size_t)
+
+// // The compiler gets confused here:
+// max_depth = max(max_depth, st.size()); 
+// When the compiler looks at max(max_depth, st.size()), it sees one int and one size_t. It doesnt know whether it should compare them as two signed integers or two unsigned integers, so it throws a compilation error: “no matching function for call to max”.
+
+// 3. The Fix
+// By casting st.size() to an int using (int)st.size(), you are forcing both arguments to be standard signed integers. The compiler is happy, and std::max works perfectly.
+
+// Alternative Solutions
+// Instead of typecasting, you could also solve this in two other ways:
+
+// Alternative A: Change the type of max_depth
+// You can declare max_depth as a size_t from the beginning. Both variables will be unsigned integers.
+
+// C++
+// size_t max_depth = 0;
+// // ...
+// max_depth = max(max_depth, st.size()); // No cast needed
+// return (int)max_depth; // Cast at the very end to match the function return type
+// Alternative B: Explicitly tell std::max what type to use
+// You can use angle brackets <int> to explicitly tell the template to treat everything as an int.
+
+// C++
+// int max_depth = 0;
+// // ...
+// max_depth = max<int>(max_depth, st.size());
+
+// TC: O(n) where n is the length of string. We iterate through the string exactly once. Pushing and popping from the stack takes O(1) time.
+
+// SC: O(n) in worst case scenario. If the string consists entirely of opening parentheses (eg: ((((( ) the stack will store all of them requiring space proportional to the length of string.
+
+// 2. Optimal Solution: 
+// Since the problem guarantees that the string is a VPS we dont actually need to store the characters in a stack. We just need to keep track of how many unmatched opening parentheses we currently have.
+
+// We can replace the stack with a simple integer counter. We increment the counter for ( and decrement it for )
+
+class Solution {
+public:
+    int maxDepth(string s) {
+        int current_depth = 0;
+        int max_depth = 0;
+
+        for (char c : s) {
+            if (c == '(') {
+                current_depth++;
+                max_depth = max(max_depth, current_depth);
+            } else if (c == ')') {
+                current_depth--;
+            }
+        }
+
+        return max_depth;
+    }
+};
+
+TC: O(n)
+n is the len of string 
+we only iterate through string once 
+
+SC: O(1)
+we are using just 2 var (current_depth and max_depth)
+
