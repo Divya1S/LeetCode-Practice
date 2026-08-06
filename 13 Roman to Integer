@@ -1,0 +1,83 @@
+// class Solution {
+// public:
+//     int romanToInt(string s) {
+//         int total = 0;       // This will hold our final integer result
+//         int prevValue = 0;   // Keeps track of the value of the previous character we processed
+
+//         // Loop through the string backwards (right to left)
+//         for (int i = s.length() - 1; i >= 0; i--) {
+//             int currentValue = 0;
+            
+//             // Determine the integer value of the current Roman character
+//             switch(s[i]) {
+//                 case 'I': currentValue = 1; break;
+//                 case 'V': currentValue = 5; break;
+//                 case 'X': currentValue = 10; break;
+//                 case 'L': currentValue = 50; break;
+//                 case 'C': currentValue = 100; break;
+//                 case 'D': currentValue = 500; break;
+//                 case 'M': currentValue = 1000; break;
+//             }
+
+//             // If the current value is less than the previous value, 
+//             // it means we encountered a subtractive case (like I before V)
+//             if (currentValue < prevValue) {
+//                 total -= currentValue;
+//             } 
+//             // Otherwise, it's a standard additive case
+//             else {
+//                 total += currentValue;
+//             }
+
+//             // Update prevValue to the current one for the next iteration of the loop
+//             prevValue = currentValue;
+//         }
+
+//         return total;
+//     }
+// };
+
+// TC: O(n) 
+// It only loops through the string once 
+
+// SC: O(1)
+
+// Another way to solve this:
+class Solution {
+public:
+    int romanToInt(string s) {
+        //Create an array where the index in the ASCII value of the character 
+        //This acts as a blazing fast loopkup table 
+        int roman[123] = {0};
+
+        roman['I'] = 1;
+        roman['V'] = 5;
+        roman['X'] = 10;
+        roman['L'] = 50;
+        roman['C'] = 100;
+        roman['D'] = 500;
+        roman['M'] = 1000;
+
+        int total = 0;
+
+        //Loop from left to right
+        for (int i = 0; i < s.length(); i++) {
+            //If the current numeral is smaller than the NEXT one subtract it 
+            if (i + 1 < s.length() && roman[s[i]] < roman[s[i+1]]) {
+                total -= roman[s[i]];
+            }
+            //Otherwise add it 
+            else{
+                total += roman[s[i]];
+            }
+        }
+
+        return total;
+    }
+};
+
+TC: O(n) 
+it uses single for loop 
+because the valid Roman numerals never exceed 3999 (which is 15 characters long), you can technically argue that the TC is O(1) coz the loop will run for max of 15 times.
+
+SC: O(1)
