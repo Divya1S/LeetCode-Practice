@@ -1,0 +1,125 @@
+// An anagram is a word or phrase formed by rearranging the letters of a diffrent word or phrase.
+// Two words are anagram if they share exact same count of each letter just in different order.
+
+// Examples of Anagrams
+// "listen" and "silent" (both have one l, one i, one s, one t, one e, and one n)
+
+// "triangle" and "integral"
+
+// "astronomer" and "moon starer"
+
+// 1. Brute Force: 
+// The simplest way to check if two strings are anagrams is to sort them. 
+
+// class Solution {
+// public:
+//     bool isAnagram(string s, string t) {
+//         //If the lengths are different, they cannot be anagrams 
+//         if (s.length() != t.length()) {
+//             return false;
+//         }
+
+//         //Sort both strings 
+//         sort(s.begin(), s.end());
+//         sort(t.begin(), t.end());
+
+//         //Compare the sorted strings
+//         return s == t;
+//     }
+// };
+
+// TC: O(nlogn) 
+// Comparing strings at end takes O(n) time.
+// Dominant operation is sorting both strings which takes O(nlogn) time.
+
+// 2. Optimal approach:
+
+// Since the problem says that the strings will only contain lowercase English letters, there are only 26 possible chracters. 
+// So we can use a simple integer array of size 26 to keep track of how many times each letter appears.
+
+// Create an array of size 26 initialized to zeros.
+// Iterate through both strings simultaneously. For every char in s increment its corresponding position in array. For every chracter in t, decrement its corresponding position.
+// If the strings are anagrams every increment will be perfectly balanced by a decrement, leaving the entire array at 0. If any number in the array is not 0, they are not anagrams.
+
+// class Solution {
+// public:
+//     bool isAnagram(string s, string t) {
+//         //If the lengths are different, they cannot be anagrams 
+//         if (s.length() != t.length()) {
+//             return false;
+//         }
+
+//         //Create an array of size 26 for lowercase english letters 
+//         int count[26] = {0};
+
+//         //Traverse both strings simultaneously
+//         for (int i = 0; i < s.length(); i++) {
+//             count[s[i] - 'a']++; //Increment for string s
+//             count[t[i] - 'a']--; //Decrement for string t
+//         }
+
+//         //Check if any chracter count is non-zero
+//         for (int i = 0; i < 26; i++) {
+//             if (count[i] != 0) {
+//                 return false;
+//             }
+//         }
+
+//         return true;
+//     }
+// };
+
+// TC: O(n)
+// we loop through string exactly once it takes O(n) operation.
+// Then we loop through fixed-size count array which takes 26 operations(almost constant).
+// SC: O(1)
+// We are allocating a single integer array of size 26. 
+
+// Follow up: What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
+
+// If the inputs contain Unicode characters, the fixed-size array approach of size 26 will no longer work. Unicode contains over 140,000 characters (including different languages, symbols, and emojis). Allocating a massive array to cover every possible Unicode code point would be highly memory inefficient, as most of the array would remain sparse.
+
+// To adpat the solution we replace the fixed size array with a Hash Table (unordered_map).
+// The hash table will dynamically store only the chracters that actually appear in the strings, mapping each character to its frequency count.
+// Logic:
+// Check if the strings are same length.
+// Create an unordered_map to store the char freq
+// Iterate through strings, increment the count for char in s and decrement for char in t.
+// Iterate through map, if any chracter has a count other than 0, they are not anagrams.
+
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        //If the lengths are different, they cannot be anagrams 
+        if (s.length() != t.length()) {
+            return false;
+        }
+
+        //Using hash map to handle any Unicode character 
+        unordered_map<char, int> count;
+
+        //Traverse both strings simultaneously
+        for (int i = 0; i < s.length(); i++) {
+            count[s[i]]++; //it creates the character if it does not exist and then increments it eg: 't' : 1
+            count[t[i]]--; // 'e' : -1
+        }
+
+        //Check if any chracter count is non-zero
+        for (auto const& [key, value] : count) { //this is the range based for loop chracter is key and integer is value (auto: figures out the data type for us) (const: is we saying to compiler that I am only reading this data I will not change or modify it inside this loop) (&: reference, istead of making a copy it tells the code to look directly at the original data stored in map, saves memory) ([key,value] is the structured binding, Since the map stores a pair, this syntax cleanly unzips the pair into 2 easily readable variables.)
+            if (value != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
+TC: O(n)
+Hash map insertion and lookups take O(1) time on average.
+We iterate through strings O(n)
+We iterate through hash map O(n)
+In absolutely worst-case scenario with excessive hash collisions, the time complexity could degrade to O(n^2) but this is extremely rare.
+
+SC: O(n) 
+Hash map will store n key-value pair
