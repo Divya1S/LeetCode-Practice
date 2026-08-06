@@ -1,0 +1,98 @@
+// class Solution {
+// public:
+//     int myAtoi(string s) {
+//         int i = 0;
+//         int n = s.length();
+//         int sign = 1;
+//         int result = 0;
+
+//         //1.Skip leading whitespace 
+//         while (i < n && s[i] == ' ') {
+//             i++; //increment the pointer 
+//         }
+
+//         //2.Check for optional sign 
+//         if (i < n && (s[i] == '+' || s[i] == '-')) {
+//             sign = (s[i] == '-') ? -1 : 1;
+//             i++; //increment the pointer 
+//         }
+
+//         //3.Process digits and build the result 
+//         while (i < n && isdigit(s[i])) {
+//             int digit = s[i] - '0';
+
+//             //4. Check for overflow/underflow BEFORE updating the result 
+//             //INT_MAX is 2147483647 we check if multiplying by 10 will exceed it 
+//             if (result > INT_MAX / 10 || (result == INT_MAX / 10 && digit > 7)) {
+//                 return sign == 1 ? INT_MAX : INT_MIN; //so if the sign is positive we will be returning INT_MAX and if it is negative we will be returning INT_MIN
+//             } 
+
+//             result = result * 10 + digit;
+//             i++;  
+//         }
+
+//         return result * sign;
+//     }
+// };
+
+// TC: O(n)
+// SC: O(1)
+
+// Lets try doing this using Deterministic Finite Automaton(DFA) also known as State Machine 
+// While your while-loop approach is perfect for simple rules, it can become a messy "spaghetti" of if/else statements if the parsing rules get more complex (like validating email addresses or floating-point numbers). A DFA solves this by defining distinct "states" the program can be in.
+
+// The State Machine (DFA) approach:
+// In a state machine, the program moves from one state to another based on the incoming character. If it gets an unexpected character, it transitions to a "dead" state and stops.
+
+// Here are the states of myAtoi:
+// 1. START: Skipping spaces 
+// 2. SIGN: A + or - was found 
+// 3. NUMBER: Processing digits.
+// 4. END: Finished or an invalid chracter was hit.
+
+class Solution {
+    enum State { START, SIGN, NUMBER, END };
+
+public:
+    int myAtoi(string s) {
+        State currentState = START;
+        int result = 0;
+        int sign = 1;
+
+        for (char c : s) {
+            if (currentState == START) {
+                if (c == ' ') continue;
+                else if (c == '+' || c == '-') {
+                    sign = (c == '-') ? -1 : 1;
+                    currentState = SIGN;
+                }
+                else if (isdigit(c)) {
+                    result = c - '0';
+                    currentState = NUMBER;
+                }
+                else currentState = END; // Invalid character found early
+            } 
+            else if (currentState == SIGN || currentState == NUMBER) {
+                if (isdigit(c)) {
+                    int digit = c - '0';
+                    
+                    if (result > INT_MAX / 10 || (result == INT_MAX / 10 && digit > 7)) {
+                        return sign == 1 ? INT_MAX : INT_MIN;
+                    }
+                    result = result * 10 + digit;
+                    currentState = NUMBER;
+                } 
+                else {
+                    currentState = END; // Non-digit stops the parsing
+                }
+            }
+
+            if (currentState == END) break;
+        }
+
+        return result * sign;
+    }
+};
+
+TC: O(n)
+SC: O(1)
