@@ -1,0 +1,55 @@
+// Manchers Algo is a clever way to find all palindromes in a string in O(n) linear time.
+// It is tricky at first glance coz it uses previously calculated information to skip unnecessary checks.
+
+// See this is how you can think about it: If you find a big palindrome the left half is a mirror image of the right half. 
+// Thus any small palindromes you found on the left half must also exist on the right half.
+
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        if (s.empty()) return "";
+        
+        // 1. Preprocess string (The Traffic Cone Trick)
+        // Turns "babad" into "#b#a#b#a#d#"
+        string t = "#";
+        for (char c : s) {
+            t += c;
+            t += '#';
+        }
+        
+        int n = t.size();
+        vector<int> p(n, 0); // The Reflection Scores
+        int l = 0, r = 0;    // The Chalk Circle Boundaries
+        
+        int maxLen = 0;
+        int centerIdx = 0;
+        
+        // 2. Run Manacher's Algorithm (The Lazy Detective)
+        for (int i = 0; i < n; i++) {
+            // Copy from mirror twin if inside the chalk circle
+            p[i] = (i < r) ? min(r - i, p[l + (r - i)]) : 0;
+            
+            // Expand past the known radius
+            while (i + p[i] + 1 < n && i - p[i] - 1 >= 0 && 
+                   t[i + p[i] + 1] == t[i - p[i] - 1]) {
+                p[i]++;
+            }
+            
+            // Draw a new chalk circle if we reached further right
+            if (i + p[i] > r) {
+                l = i - p[i];
+                r = i + p[i];
+            }
+            
+            // Keep track of the absolute longest palindrome found so far
+            if (p[i] > maxLen) {
+                maxLen = p[i];
+                centerIdx = i;
+            }
+        }
+        
+        // 3. Map back to the original string
+        int startIdx = (centerIdx - maxLen) / 2;
+        return s.substr(startIdx, maxLen);
+    }
+};
