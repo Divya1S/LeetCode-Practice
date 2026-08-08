@@ -1,0 +1,115 @@
+// 1. Brute force Approach (string and &Vector)
+// The easiest way to solve this is using stringstream, which automatically handles the splitting of words by spaces (ignoring muktiple spaces) we store all the extracted words in a vector and then build the result string by reading the vector backwards.
+// class Solution {
+// public:
+//     string reverseWords(string s) {
+//         stringstream ss(s);
+//         string word;
+//         vector<string> words;
+
+//         //Extract words ignoring spaces
+//         while (ss >> word) {
+//             words.push_back(word);
+//         }
+
+//         string result = "";
+//         //Traverse backwards to reverse the order 
+//         for (int i = words.size() - 1; i >= 0; --i) {
+//             result += words[i];
+//             if (i > 0) result += " ";
+//         }
+
+//         return result;
+//     }
+// };
+
+// TC: O(n) where n is the length of the string, we parse the string and build a new one.
+// SC: O(n) to store the words in the vector and the intermediate string stream 
+
+// 2. Better Approach (Two Pointer, Right to Left) 
+// To optimize space slightly better and avoid the overhead of stringstream and vectors we can iterate through the original string backwards using two pointers. We extract the words directly and append them to our result string.
+
+// class Solution {
+// public:
+//     string reverseWords(string s) {
+//         string result = "";
+//         int n = s.length();
+//         int i = n - 1;
+
+//         while (i >= 0) {
+//             //Skip spaces from the right
+//             while (i >= 0 && s[i] == ' ') {
+//                 i--;
+//             }
+//             if (i < 0) break;
+
+//             // i points to the last character of a word track it with j 
+//             int j = i;
+
+//             //Move left until we find the start of the word
+//             while (i >= 0 && s[i] != ' ') {
+//                 i--;
+//             }
+
+//             //Append the extracted word to result 
+//             if (result.empty()) {
+//                 result = s.substr(i+1, j-i);
+//             }else {
+//                 result += " " + s.substr(i+1, j-i);
+//             }
+
+//         }
+//         return result;
+//     }
+// };
+
+// TC: O(n) we iterate through the string once and extract subtrings.
+// SC: O(n) because we are still creating and returning a new result.
+
+// 3. Optimal Approach (In-place O(1) extra space)
+// C++ strings are mutable. This means we can modify s directly without using any extra auxiliary structures to satisfy the problems follow-up requirement.
+
+// We can achieve this in three steps:
+// Reverse the entire string (this gets words in the right general order but reversed individually)
+// Shift words to the front to remove trailing leading and duplicate spaces 
+// Reverse each word individually to fix them 
+
+class Solution {
+public:
+    string reverseWords(string s) {
+        // Step 1: Reverse the entire string
+        reverse(s.begin(), s.end());
+        
+        int n = s.length();
+        int writeIndex = 0; // Pointer for pacing modified characters
+        
+        for (int readIndex = 0; readIndex < n; ++readIndex) {
+            // Look for the start of a word
+            if (s[readIndex] != ' ') {
+                // If it's not the very first word, prepend a space
+                if (writeIndex != 0) {
+                    s[writeIndex++] = ' ';
+                }
+                //if the writeIndex is not 0 it means we have already written a word previously so before we write the next word we mist drop down explactly once space chracter to seperate them 
+                
+                int wordStartIndex = readIndex;
+                
+                // Shift the whole word to the write pointer
+                while (readIndex < n && s[readIndex] != ' ') {
+                    s[writeIndex++] = s[readIndex++];
+                }
+                //While loop kicks in as long as the readIndex sees the letter it copies that letter to writeIndex and both move forward together ++
+                
+                // Step 2 & 3: The word is reversed because of Step 1; reverse it back
+                reverse(s.begin() + writeIndex - (readIndex - wordStartIndex), s.begin() + writeIndex);
+            }
+            //s.begin() + writeIndex is exactly where our pen just stopped writing (end of the word), (readIndex - wordStartIndex) is simple math to calculate how long the word is.
+            //By subtracting the length from where the pen stopped and reverse flips that chunck of letters 
+        }
+        
+        // Step 4: Trim the string to remove whatever garbage characters remain at the end
+        s.erase(s.begin() + writeIndex, s.end());
+        
+        return s;
+    }
+};
