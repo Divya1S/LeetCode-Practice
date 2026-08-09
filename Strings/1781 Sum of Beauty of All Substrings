@@ -1,0 +1,68 @@
+// class Solution {
+// public:
+//     int beautySum(string s) {
+//         int n = s.length();
+//         int totalBeauty = 0;
+        
+//         // Generate all substrings
+//         for (int i = 0; i < n; ++i) {
+//             for (int j = i; j < n; ++j) {
+//                 string sub = s.substr(i, j - i + 1);
+//                 totalBeauty += getBeauty(sub);
+//             }
+//         }
+//         return totalBeauty;
+//     }
+    
+// private:
+//     int getBeauty(const string& sub) {
+//         vector<int> freq(26, 0);
+//         for (char c : sub) {
+//             freq[c - 'a']++;
+//         }
+        
+//         int maxF = 0, minF = INT_MAX;
+//         for (int f : freq) {
+//             if (f > 0) {
+//                 maxF = max(maxF, f);
+//                 minF = min(minF, f);
+//             }
+//         }
+//         return maxF - minF;
+//     }
+// };
+
+class Solution {
+public:
+    int beautySum(string s) {
+        int n = s.length();
+        int totalBeauty = 0;
+        
+        // i represents the starting index of the substring
+        for (int i = 0; i < n; ++i) {
+            vector<int> freq(26, 0); // Frequency array for the current starting index
+            
+            // j represents the ending index of the substring
+            for (int j = i; j < n; ++j) {
+                freq[s[j] - 'a']++; // Increment the frequency of the current character
+                
+                int maxF = 0;
+                int minF = INT_MAX;
+                
+                // Find the max and min frequencies in the current substring
+                for (int f : freq) {
+                    if (f > 0) {
+                        maxF = max(maxF, f);
+                        minF = min(minF, f);
+                    }
+                }
+                
+                // Add the beauty of the current substring to the total
+                totalBeauty += (maxF - minF);
+            }
+        }
+        
+        return totalBeauty;
+    }
+};
+
