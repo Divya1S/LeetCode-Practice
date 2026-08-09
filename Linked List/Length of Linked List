@@ -1,0 +1,49 @@
+Length of a singly linked list
+
+Iterative Method:
+
+//Return the number of nodes in linked list 
+int getLength() {
+    int count = 0;
+    Node* temp = head;
+
+    while (temp != nullptr) {
+        count++;
+        temp = temp->next;
+    }
+
+    return count;
+}
+
+int main() {
+    LinkedList list;
+
+    list.insertAtEnd(10);
+    list.insertAtEnd(20);
+    list.insertAtEnd(30);
+    list.insertAtBeginning(5);
+
+    cout << "Length of the linked list:" << list.getLength() << endl;
+
+    return 0; 
+}
+
+TC: O(n)
+SC: O(1)
+
+
+Recursive Method:
+//helper function 
+int getLengthRecursive(Node* node) {
+    if (node == nullptr) 
+        return 0;
+    return 1 + getLengthRecursive(node->next);
+}
+
+//Public method 
+int getLength() {
+    return getLengthRecursive(head);
+}
+
+TC: O(n)
+SC: O(n) call stack
