@@ -1,0 +1,112 @@
+Inserting a Node at the End (Tail) of a Doubly Linked List (DLL)
+
+Given a doubly linked list and a value k you need to create a new node with value k and insert it at the very end (as the tail) of the doubly linked list.
+
+Input: DLL: 1 <-> 2 <-> 3 <-> 4 Value to insert: 6
+Result: 1 <-> 2 <-> 3 <-> 4 <-> 6
+
+To insert a new node at the end of doubly linked list you have to find the current last node (the tail) and update the pointers so the new node is attached to it.
+
+Logic:
+1. Create the New Node: Create a new node containing the value k.
+
+2. Handle Empty List: If the provided list is empty (that is head is null) the new node iteself becomes the head. You just return this new node.
+
+3. Traverse to the Tail: If the list is not emtpy, create temp pointer (lets call it tail) and start at head. Use a while loop to move forward (tail = tail->next) until you reach the last node. You know you are the last node when tail->next is null.
+
+4. Connect the New Node:
+a. Point the current tail's next pointer to the new node (tail->next = newNode)
+b. Point the new node's back (or prev) pointer to the current tail (newNode->back = tail)
+
+5. Return the Head: The head of the list remains unchanged, so return the original head.
+
+//Define a Node class for the doubly linked list 
+class Node {
+public: 
+    int data;
+    Node* next;
+    Node* back;
+
+    //Constructor with full initialization
+    Node(int data1, Node* next1, Node* back1) {
+        data = data1;
+        next = next1;
+        back = back1;
+    }
+
+    //Constructor for a new tail node 
+    Node(int data1) {
+        data = data1;
+        next = nullptr;
+        back = nullptr;
+    }
+};
+
+//Function to insert a new node at the end of the DLL
+Node* insertAllTail(Node* head, int k) {
+    //1.Create a new node with data k 
+    Node* newNode = new Node(k);
+
+    //2. If the list is completely empty, the new node becomes the head 
+    if (head == nullptr) {
+        return newNode;
+    }
+
+    //3.Traverse to the very last node of the list 
+    Node* tail = head;
+    while (tail->next != nullptr) {
+        tail = tail->next;
+    }
+
+    //4.Connect the new node to the last node
+    tail->next = newnode;
+    newNode->back = tail;
+
+    //5.Return the original head
+    return head;
+}
+
+//Helper function to test the code 
+Node* convertArr2DLL(vector<int> arr) {
+    if (arr.empty()) return nullptr;
+    Node* head = new Node(arr[0]);
+    Node* prev = head;
+    for (int i = 1; i < arr.size(); i++) {
+        Node* temp = new Node(arr[i], nullptr, prev);
+        prev->next = temp;
+        prev = temp;
+    }
+    return head;
+}
+
+void print(Node* head) {
+    while (head != nullptr) {
+        cout << head->date << " ";
+        head = head->next;
+    }
+    cout << endl;
+}
+
+int main() {
+    vector<int> arr = {12, 5, 8, 7, 4};
+    Node* head = covertArr2LL(arr);
+
+    cout << "Doubly Linked List Initially: " << endl;
+
+    cout << "\nDoubly Linked List After Inserting 10 at the tail: " << endl;
+    head = insertAtTail(head, 10);
+    print(head);
+
+    return 0;
+}
+
+TC: O(N) 
+Where N is the num of nodes in the list.
+To insert at the end we must traverse the entire list from the head to find the tail node.
+
+SC: O(1)
+We are only dynamically allocating memory for one single newNode which takes a constant amount of extra space regardless of the list size.
+
+If you maintain a tail pointer alongside your head pointer globally you could reduce the TC of inserting at the end to O(1) coz you would not need to traverse the list.
+However standard ll problems usually only provide the head pointer making O(N) the ans.
+
