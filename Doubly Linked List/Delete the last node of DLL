@@ -1,0 +1,88 @@
+Delete the last node of DLL
+
+To delete the last node of dll, you update the linkage between its last node and its second to last node. Coz a dll is bidirectional you set the second to last nodes next pointer to null, effectively making it the new tail.
+
+Algo:
+Handle Empty List: 
+If the list is emtpy head == null return immediately as there is nothing to delete.
+
+Handle Single Node List: 
+If the list has only one node (head.next == null) delete the node and return an empty list null
+
+Traverse:
+Traverse the doubly linked list to the last node and keep track of it using a temp pointer 
+
+Disconnect forward link:
+Acccess the second to last node using the tails back pointer.
+Set the next pointer of this second to last node to null.
+This disconnects the initial tail node from the list.
+
+Disconnect Backward link:
+Set the back pointer of the tail node to null. This ensures the deleted tail node no longer points back to the second to last node. 
+
+Return: 
+Return the head of the doubly linked list as the result 
+
+//Node structure for DLL
+struct Node {
+    int data;
+    Node* prev;
+    Node* next;
+    Node(int val) {
+        data = val;
+        prev = NULL;
+        next = NULL;
+    }
+};
+
+class Solution {
+public: 
+    //Function to delete tail of DLL
+    Node* deleteTail(Node* head) {
+        //If list is empty 
+        if (head == NULL) return NULL;
+
+        //If only one node present 
+        if (head->next == NULL) {
+            delete head;
+            return NULL;
+        }
+
+        //Traverse to the last node 
+        Node* temp = head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+
+        //Update second last nodes next to NULL 
+        temp->prev->next = NULL; //temp is pointing to the last node and prev is the second to last node we are making the next pointer to this second to last node as null
+
+        //Delete tail node 
+        delete temp;
+
+        //Return head
+        return head;
+
+    }
+};
+
+int main() {
+    Node* head = new Node(1);
+    Node->next = new Node(2);
+    head->next->prev = head;
+    head->next->next = new Node(3);
+    head->next->next->prev = head->next;
+
+    Solution obj;
+    head = obj.deleteTail(head);
+
+    //Print list after deletion 
+    Node* curr = head;
+    while (curr != NULL) {
+        cout << curr->data << "";
+        curr = curr->next;
+    }
+
+    return 0;
+
+}
