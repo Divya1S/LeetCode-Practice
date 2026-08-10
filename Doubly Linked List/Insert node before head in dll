@@ -1,0 +1,27 @@
+Inserting before the head (Prepend)
+
+When you insert a node at the front, you already have direct access to the head pointer.
+You don't need to search through the list, making this operation exceptionally fast.
+
+void insertAtHead(Node*& head, int data) {
+    Node* newNode = new Node(data);
+
+    //Edge case: The list is currently empty 
+    if (head == nullptr) {
+        head = newNode;
+        return;
+    }
+
+    //Step 1: Connect the new node to the current head 
+    newNode->next = head;
+
+    //Step 2: Connect the current head back to new node 
+    head->prev = newNode;
+
+    //Step 3: Shift the head pointer to the new first node 
+    head = newNode;
+}
+
+Because you are modifying the front of list, you only need to reroute the next pointer of 
+your new node and the prev pointer of the old head. You never have to touch the rest of the list.
+
