@@ -1,0 +1,96 @@
+<!-- What is a Doubly Linked List?
+Before diving into doubly linked lists, it helps to understand standard singly linked lists. A singly linked list only allows you to travel in one direction (forward) because each node only holds two pieces of data: a value and a pointer to the next node. You cannot easily move backward.
+
+Doubly Linked Lists solve this limitation by allowing 2-way traversal. They achieve this by introducing an extra pointer into each node.
+
+In a Doubly Linked List, every node contains three distinct parts:
+
+Data: The actual value being stored (e.g., an integer).
+
+Next Pointer: A reference to the next node in the sequence.
+
+Previous Pointer: A reference to the node that comes immediately before it.
+
+This bidirectional linking makes it much easier to perform operations at both ends of the list or traverse backward, which is highly valuable for advanced data structures (like Deques or complex cache implementations like LRU caches). -->
+
+//Class representing a node in a Doubly Linked List 
+
+class Node {
+public: 
+    int data; //Stores the nodes value 
+    Node* next; //Pointer to next node 
+    Node* prev; //Pointer to previous node 
+
+    //Constructor when data, next and prev are all provided 
+    Node (int data1, Node* next1, Node* prev1) {
+        data = data1;
+        next = next1;
+        prev = prev1;
+    }
+
+    //Constructor when only data is provided 
+    Node(int data1) {
+        data = data1;
+        next = nullptr;
+        prev = nullptr;
+    }
+};
+
+//Function to convert an array into a fully linked Doubly Linked List 
+Node* convertArrToDLL(const vector<int>& arr) {
+    //Handle edge case: empty input collection
+    if (arr.empty()) return nullptr;
+
+    //Initialize the head of the list dynamically using the first array element 
+    Node* head = new Node(arr[0]);
+
+    //prevNode acts as a trailing pointer to maintain linkage during iteration 
+    Node* prevNode = head;
+
+    //Loop through the rest of the array to create and link nodes 
+    for (size_t i = 1; i < arr.size(); i++) {
+
+        //Allocate a new node its prev pointer is immediately set to prevNode
+        //Its next pointer defaults to nullptr
+        Node* temp = new Node(arr[i], nullptr, prevNode);
+
+        //Establish the forward link from the previous node to the new node
+        prevNode->next = temp;
+
+        //Move the prevNode marker forward to current node for iteration
+        prevNode = temp;
+    }
+    return head;
+}
+
+//Function to traverse and print the list 
+void printDLL(Node* head) {
+    Node* temp = head;
+    while (temp != nullptr) {
+        cout << temp->data << " ";
+        temp = temp->next; //Move forward
+    }
+    cout << "\n";
+}
+
+int main() {
+    //Initializing an array to create nodes 
+    vector<int> arr = {2, 5, 8, 7};
+
+    //Constructing the full doubly linked list 
+    Node* head = convertArrToDLL(arr);
+
+    //Print to verify 2-way linking was successful 
+    cout << "Doubly Linked List values:";
+    printDLL(head);
+
+    //memory clean up 
+    Node* temp = head;
+    while (temp != nullptr) {
+        Node* nextNode = temp->next;
+        delete temp; 
+        temp = nextNode;
+    }
+    
+    return 0;
+}
