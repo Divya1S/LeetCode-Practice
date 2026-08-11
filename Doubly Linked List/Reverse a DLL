@@ -1,0 +1,109 @@
+You are given a DLL of size N consisting of positive integers.
+The task is to reverse the list and return the new head 
+
+Node structure:
+
+class Node {
+public: 
+    int data;
+    Node* next;
+    Node* back; //Pointer to previous node 
+
+    Node(int data1, Node* nex1 = nullptr, Node* back1 = nullptr) {
+        data = data1;
+        next = next1;
+        back = back1;
+    }
+};
+
+Brute force solution using Stack:
+1. Handle Base Cases: 
+If head is nullptr or head->next is nullptr (0 or 1 node)
+return head directly 
+
+2. First Pass (Store Data): traverse the dll using a temp pointer and push each nodes data onto an auxiliaru stack<int>
+
+3. Second Pass: (Overwrite Values): Reset temp back to head. Traverse the list again pop the top element form the stack, overwrite temp->data with it, and move temp to temp->next
+
+Return Head: Return head (the node pointers remain unchanged) but the values are reversed 
+
+
+Node* reverseDLLBruteForce(Node* head) {
+    //Corner case: list is empty or has only one node 
+    if (head == nullptr || head->next == nullptr) {
+        return head;
+    } 
+
+    stack<int> st;
+    Node* temp = head;
+
+    //Step1: Push all values in stack
+    while (temp != nullptr) {
+        st.push(temp->data);
+        temp = temp->next;
+    }
+
+    //Step 2: Pop values from stack and reassign to nodes 
+    temp = head;
+    while(temp != nullptr) {
+        temp->data = st.top();
+        st.pop();
+        temp = temp->next;
+    }
+
+    return head;
+
+}
+
+TC: O(2N)
+We need two passes one to populate the stack and one to write the values back taking O(N) time.
+
+SC: O(N) 
+Extra memeory is allocated for stack storing N nodes.
+
+2. Optimal Solution 
+1. Handle base case: If head == nullptr and head->next == nullptr return head 
+
+2. Initialize the pointers: Create a pointer current initialized to head and pointer last initialized to nullptr
+
+3. traverse and swap: While curr is not nullptr:
+    Save the forward pointer curr->next in temp variable.
+    Swap the current nodes pointer: set curr->next to curr->back and curr->back to temp 
+    Update the last = curr to track the last visited node (which will end up being the new head)
+    Move curr forward in the original list order by setting curr = temp.
+
+4. Return the new head: Return last which now points to the head of the reversed list.
+
+Node* reverseDLLOPtimal(Node* head) {
+    //Corner case: list is empty or has 1 node 
+    if (head == nullptr || head->next == nullptr) {
+        return head;
+    }
+
+    Node* curr = head;
+    Node* last = nullptr;
+
+    while (curr != nullptr) {
+        //Preserve the next pointer before swapping 
+        Node* temp = curr->next;
+
+        //Swap next and back pointers 
+        curr->next = curr->back;
+        curr->back = temp;
+
+        //Save the current references as last visited node 
+        last = curr;
+
+        //Move the next node in original sequence 
+        curr = temp;
+    }
+
+    //Return new head of reversed DLL
+    return last;
+}
+
+TC: O(N)
+Single linear pass traversing all N nodes 
+
+SC: O(1)
+Done completely in-place by updating pointer references without allocating memory 
