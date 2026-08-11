@@ -1,0 +1,112 @@
+Given the head of a linked list determine whether the list contains a loop (cycle). If the loop is present 
+return the number of nodes that make up the loop (that is the length of the loop). If there 
+is no loop in the linked list return 0.
+
+Example 1:
+Input: head = [2, 5, 7, 8, 10], tail connects to node index 2 (0-indexed)
+Output: 3
+Explanation: The loop consists of the nodes 7 -> 8 -> 10 -> 7.... There are exactly 3 nodes inside this cycle, so the length is 3.
+
+Example 2:
+Input: head = [1, 2], tail connects to node index 0
+Output: 2
+Explanation: The loop consists of the nodes 1 -> 2 -> 1.... Both nodes are part of the loop, making the length 2.
+
+Example 3:
+Input: head = [1, 2, 3, 4], no loop
+Output: 0
+Explanation: There is no loop in the linked list, so we return 0.
+
+Constraints:
+0 <= Num of nodes <= 10^4
+-10^5 <= Node.val <= 10^5
+
+1. Brute Force Approach (Using Hashing)
+To find the length of the loop, we can use a Hash Map to remember not just the nodes we have visited, but also the "timer" or "step count" at which we visited them.
+As we traverse the list, we keep incrementing a step counter. 
+If we reach a node that is already in our Hash Map, we have found a cycle. 
+The length of the loop is simply the current step count minus the step count recorded when we first visited that node.
+
+class Solution {
+public:
+    int countNodesinLoop(ListNode* head) {
+        //Hash map to store the node and the step at which it was visited 
+        unordered_map<ListNode*, int> visitedNodes;
+
+        ListNode* temp = head;
+        int step = 1;
+
+        while (temp != nullptr) {
+            //If the node is already in the map, a loop is detected 
+            if (visitedNodes.find(temp) != visitedNodes.end()) {
+                //Loop length = current step - step when node was first visited 
+                return step - visitedNodes[temp];
+            }
+
+            //Record the node and the current step
+            visitedNodes[temp] = step;
+
+            //Move to the next node and increment the timer 
+            temp = temp->next;
+            step++;
+        }
+
+        //If we reach null, there is no loop 
+        return 0;
+    }
+}
+
+TC: O(n)
+We traverse the list once O(n)
+Searching and inserting in the map takes O(1) time 
+
+SC: O(n)
+We store upto n nodes in the hash map along with there step counts, the auxiliary space is proportional to the number of nodes.
+
+
+Optimal Solution:
+We can solve this in constant space using the Tortoise and Hare algorithm.
+
+Detect the Cycle: Use a slow pointer (moves 1 step) and a fast pointer (moves 2 steps). If they meet, a cycle exists.
+
+Count the Nodes: Once they meet, they are somewhere inside the loop. We can pause one pointer (lets say slow) and use a temporary pointer starting from the meeting point. 
+We move the temporary pointer one step at a time, counting the steps, until it completes the circle and returns to the paused slow pointer.
+That count is the length of the loop.
+
+class Solution {
+public:
+    int countNodesinLoop(ListNode *head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        //Step1: Detect if a cycle exists 
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            //If they meet loop is detected 
+            if (slow == fast) {
+
+                //Step2: Count the length of the loop 
+                int count = 1;
+                ListNode* temp = slow->next; //Start one node ahead
+
+                //Traverse the loop until we reach the starting slow node again 
+                while (temp != nullptr) {
+                    count++;
+                    temp = temp->next;
+                }
+
+                return count;
+            }
+        }
+
+        //If the fast reaches null there is no loop
+        return 0;
+    }
+};
+
+TC: O(N).Phase 1: The fast pointer catches up to the slow pointer in time proportional to the number of nodes in the list.
+Phase 2: Counting the nodes takes $K$ steps, where $K$ is the length of the loop. Overall, the algorithm runs in strictly linear time.
+
+SC: O(1). We only use a few pointers (slow, fast, temp) and an integer counter, requiring no extra memory scaling with the list size.
