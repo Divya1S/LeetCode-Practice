@@ -1,0 +1,153 @@
+Problem Statement
+Given a linked list containing only 0's, 1's, and 2's, sort the linked list by rearranging the links (not by changing the data values).
+
+Examples:
+
+Input: 1 -> 2 -> 0 -> 1 -> 0 -> 2 -> NULL
+
+Output: 0 -> 0 -> 1 -> 1 -> 2 -> 2 -> NULL
+
+
+Brute Force Approach
+A standard brute force way to sort a linked list of 0s, 1s, and 2s involves the counting sort method:
+
+Traverse the linked list and maintain three variables to count the total number of 0s, 1s, and 2s.
+
+Traverse the linked list a second time and sequentially replace the node values with 0s, then 1s, and then 2s based on the frequencies counted.
+
+class Solution {
+public:
+    void sortZeroOneTwoBruteForce(Node* head) {
+        int cnt0 = 0, cnt1 = 0, cnt2 = 0;
+
+        Node* temp = head;
+
+        //Step1: Count the occurrences of 0 1 and 2
+        while (temp != nullptr) {
+            if (temp->data == 0) cnt0++;
+            else if (temp->data == 1) cnt1++;
+            else (temp->data == 2) cnt2++;
+            temp = temp->next;
+        }
+
+        //Step2: Replace the data in linked list 
+        temp = head;
+        while (temp != nullptr) {
+            if (cnt0 > 0) {
+                temp->data = 0;
+                cnt0--;
+            } else if (cnt1 > 0) {
+                temp->data = 1;
+                cnt1--;
+            } else (cnt2 > 0) {
+                temp->data = 2;
+                cnt2--;
+            }
+            temp = temp->next;
+        }
+    }
+};
+
+TC: O(2N)
+For 2 passes.
+
+SC: O(1)
+It uses fixed number of integer counters (cnt0, cnt1, cnt2) and pointer temp.
+
+Note: The problem strictly states we must rearrange the links and not change the data values. Because the brute-force approach overwrites the node values, it violates the core constraint of this specific problem. Therefore, we must use the optimal approach.
+
+
+Optimal Approach (By Changing Links)To sort the list without modifying the data values, we can separate the list into three distinct chains—one for 0s, one for 1s, and one for 2s—and then merge them back together.
+
+1.Initialize Dummy Nodes:
+Create three dummy nodes (zeroDummy, oneDummy, and twoDummy). 
+These serve as the safe starting points for our three separate lists and help us easily handle edge cases (like a list having no 1s).
+
+2.Initialize Tail Pointers:
+Create three tail pointers (zeroTail, oneTail, twoTail) and point them to their respective dummy nodes. 
+These will track the ends of our three lists, allowing us to append new nodes in O(1) time.
+
+3.Traverse and Distribute:
+Iterate through the original linked list using a curr pointer. 
+For each node:
+If curr.data == 0, append it to the zero list: zeroTail.next = curr; zeroTail = zeroTail.next;
+If curr.data == 1, append it to the one list: oneTail.next = curr; oneTail = oneTail.next;
+If curr.data == 2, append it to the two list: twoTail.next = curr; twoTail = twoTail.next;
+
+4.Merge the Chains:
+Once all nodes are distributed, physically link the three chains together:
+Connect the end of the zero list to the first actual node of the one list (or to the two list if the one list happens to be empty).
+Connect the end of the one list to the first actual node of the two list.Set twoTail.next = NULL to safely terminate the final linked list and avoid cycles.
+
+5.Update Head:
+The new head of your sorted list is zeroDummy.next. 
+The dummy nodes can then be deleted/ignored.
+
+class Node {
+public: 
+    int data;
+    Node* next;
+
+    //Constructor
+    Node(int val) {
+        data = val;
+        next = nullptr;
+    }
+};
+
+class Solution {
+public: 
+    Node* sortZeroOneTwo(Node* head) {
+        //Base case: if the list is emtpy or has only one node 
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+
+        //Create dummy nodes to act at the starting points for three lists 
+        Node* zeroDummy = new Node(-1);
+        Node* oneDummy = new Node(-1);
+        Node* twoDummy = new Node(-1);
+
+        //Tail pointers to append new nodes in O(1) time 
+        Node* zeroTail = zeroDummy;
+        Node* oneTail = oneDummy;
+        Node* twoTail = twoDummy;
+
+        Node* curr = head;
+
+        //Traverse the original list and distribute the nodes 
+        while (curr != nullptr) {
+            if (curr->data == 0) {
+                zeroTail->next = curr;
+                zeroTail = zeroTail->next;
+            } else if (curr->data == 1) {
+                oneTail->next = curr;
+                oneTail = oneTail->next;
+            } else {
+                twoTail->next = curr;
+                twoTail = twoTail->next;
+            }
+            curr = curr->next;
+        }
+
+        //Connect the three chains together 
+        //If 1 list is empty connect 0 directly to 2
+        zeroTail->next = (oneDummy->next != nullptr) ? oneDummy->next : twoDummy->next;
+
+        //Connect '1s' to '2s'
+        oneTail->next = twoDummy->next;
+
+        //Terminate the final list to prevent cycles 
+        twoTail->next = nullptr;
+
+        //The new head of the sorted list 
+        Node* newHead = zeroDummy->next;
+
+        //Clean up the dynamically allocated dummy nodes to prevent memory leaks 
+        delete zeroDummy;
+        delete oneDummy;
+        delete twoDummy;
+
+        return newHead;
+    }
+}
