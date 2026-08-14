@@ -1,0 +1,86 @@
+You are given head of Doubly Linked List and an integer key.
+Your task is to delete all nodes in the list that have their data equal to the given key.
+You must update the next and prev pointers of the remaning nodes appropriately and return the head of the modified doubly linked list.
+
+Examples
+Example 1:
+
+Input: head = [10 <-> 4 <-> 10 <-> 10 <-> 6 <-> 10], key = 10
+Output: [4 <-> 6]
+Explanation: All nodes containing the value 10 are removed. The remaining list is 4 <-> 6.
+
+Example 2:
+
+Input: head = [1 <-> 2 <-> 1 <-> 3 <-> 4], key = 1
+Output: [2 <-> 3 <-> 4]
+Explanation: The head node and the third node have the value 1 and are deleted. The new head becomes 2.
+
+Example 3:
+
+Input: head = [2 <-> 2 <-> 2], key = 2
+Output: [] (Empty List)
+Explanation: All nodes match the key, so the entire list is deleted, resulting in nullptr.
+
+
+class Node {
+public: 
+    int data;
+    Node* next;
+    Node* prev;
+
+    Node(int val) {
+        data = val;
+        next = nullptr;
+        prev = nullptr;
+    }
+};
+
+class Solution {
+public: 
+    Node* deleteAllOccurrences(Node* head, int k) {
+        Node* temp = head;
+
+        while (temp != nullptr) {
+            //If we find a node matching the key 
+            if (temp->data == k) {
+
+                //Case 1: The node to be deleted is the head node 
+                if (temp == head) {
+                    head = head->next;
+                }
+
+                //Store the previous and next nodes 
+                Node* prevnode = temp->prev;
+                Node* next = temp->next;
+
+                //Adjust the pointers to bypass 'temp'
+                if (prevNode != nullptr) {
+                    prevNode->next = nextNode;
+                }
+                if (nextNode != nullptr) {
+                    nextNode->next = prevNode;
+                }
+
+                //Store the node to delete and move temp forward 
+                Node* nodeToDelete = temp;
+                temp = temp->next;
+
+                //Free the memory 
+                delete nodeToDelete;
+
+            }else {
+                //If the data doesn't match just move forward 
+                temp = temp->next;
+            }
+        }
+
+        return head;
+    }
+};
+
+TC: O(N)
+We traverse the doubly linked list exactly once. 
+N is the total number of nodes in the list.
+Pointer manipulation inside the loop takes const O(1) time 
+
+SC: O(1)
