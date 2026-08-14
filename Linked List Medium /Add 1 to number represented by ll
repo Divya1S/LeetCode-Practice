@@ -1,0 +1,157 @@
+Add 1 to a Number Represented by a Linked List
+
+Problem Statement
+You are given the head of a singly linked list representing a positive integer. Each node of the linked list represents a single digit of the number, with the first node containing the most significant digit (the leftmost digit) and the last node containing the least significant digit (the rightmost digit).
+
+Your task is to add 1 to the integer value represented by the linked list and return the head of the modified linked list.
+
+Note: The number will not contain any leading zeroes, unless the number itself is exactly 0.
+
+Examples
+Example 1:
+
+Input: head = [4, 5, 6]  (representing the number 456)
+Output: [4, 5, 7]
+Explanation: 456 + 1 = 457. The modified linked list is 4 -> 5 -> 7.
+
+Example 2:
+
+Input: head = [9, 9, 9]  (representing the number 999)
+Output: [1, 0, 0, 0]
+Explanation: 999 + 1 = 1000. We carry the 1 all the way to the front, requiring a new head node. The modified linked list is 1 -> 0 -> 0 -> 0.
+
+Example 3:
+
+Input: head = [0] (representing the number 0)
+Output: [1]
+Explanation: 0 + 1 = 1. The modified linked list is 1.
+
+Constraints:
+1 <= N <= 10^5 (N is the number of node is ll)
+0 <= Node.data <= 9
+The linked list represents a valid number (no leading zeros except for the number o itself)
+
+Creating a standard Node class:
+class Node {
+public: 
+    int data;
+    Node* next;
+
+    Node(int value) {
+        data = value;
+        next = nullptr;
+    }
+};
+
+1. Iterative approach using Reversal
+Because a singly linked list only allows us to traverse forward (from the most significant digit to least significant digit), adding numbers directly is difficult without knowing the carry from the end.
+To fix this we can reverse the list, do the addition starting from the head (which is now the least significant digit) and then reverse the list back.
+
+class Solution {
+private:
+    //Helper function to reverse the linked list 
+    Node* reverseList(Node* head) {
+        Node* prev = nullptr;
+        Node* current = head;
+
+        while (current != nullptr) {
+            Node* nextNode = current->next;
+            current->next = prev;
+            prev = current;
+            current = nextNode;
+        }
+
+        return prev;
+    }
+
+public: 
+    Node* addOne(Node* head) {
+        //Step1: Reverse the list to make the least significant digit accessible 
+        head = reverseList(head);
+
+        Node* current = head;
+        int carry = 1; //We start with a carry of 1 because we want to add 1
+
+        //Step 2: Traverse the reversed list and add the carry 
+        while (current != nullptr && carry > 0) {
+            int sum = current->data + carry;
+            current->data = sum % 10;
+            carry = sum / 10;
+
+            //If we are at the last node and still have a carry, append a new node 
+            if (current->next == nullptr && carry > 0) {
+                current->next = new Node(carry);
+                carry = 0; //Carry is consumed 
+            }
+            current = current->next;
+        }
+
+        //Step 3: Reverse the list back to its original order 
+        return reverseList(head);
+    }
+    
+};
+
+Iterative:
+
+TC: O(N)
+We traverse the list 3 times.
+Once to reverse it.
+Once to add the carry.
+Once to reverse it back.
+
+SC: O(1)
+
+Pros: No extra space needed 
+Cons: Tampering data and more time taken 
+
+Recursive Approach (Using Backtracking)
+If you want to avlid reversing the list, recursion is the way to solve this question. 
+The recursive call traverses all the way to the end of the list. On its way back up 
+(during the backtracking phase), it adds the carry (which starts at 1 at the very end).
+
+class Solution {
+private:
+    //Recursive function to add 1 and return the carry 
+    int addOneUntil(Node* node) {
+        if (node == nullptr) {
+            return 1;
+        }
+
+        //Recurse to the very end of the list 
+        int carry = addOneUntil(node->next);
+
+        //Backtracking step: Add the carry returned from the right to the current node 
+        int sum = node->data + carry;
+        node->data = sum % 10;
+
+        //Return the new carry to the previous node in the call stack 
+        return sum / 10;
+    }
+
+public: 
+    Node* addOne(Node* head) {
+
+        //Perform recursive addition 
+        int finalCarry = addOneUntil(head);
+
+        //If a carry remains after processing the original head (eg: 999 + 1)
+        //we must create a new head node (1 -> 0 -> 0 -> 0)
+        if (finalCarry > 0) {
+            Node* newHead = new Node(finalCarry);
+            newHead->next = head;
+            head = newHead;
+        }
+
+        return head;
+    }
+};
+
+TC: O(N)
+The recursive function visits each node in the linked list exactly once to reach the end
+and processes each node exactly once while backtracking.
+
+SC: O(N)
+Coz we traverse to the very end of ll before returning the recursive call stack will grow to size N.
+Therefore it takes O(N) auxiliary space.
+
