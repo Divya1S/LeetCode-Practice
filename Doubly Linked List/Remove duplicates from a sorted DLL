@@ -1,0 +1,136 @@
+// Given the head of DLL with its values sorted in non-decreasing order.
+// Remove all duplicate occurrences of any value in the list so that only distinct values are present in the list.
+// Return the head of the modified linked list.
+
+// Examples  
+// Example 1:  
+
+// Input: head -> 1 <-> 1 <-> 3 <-> 3 <-> 4 <-> 5
+
+// Output: head -> 1 <-> 3 <-> 4 <-> 5
+
+// Explanation: Duplicate occurrences of 1 and 3 are deleted.  
+
+// Example 2:
+
+// Input: head -> 1 <-> 1 <-> 1 <-> 1 <-> 1 <-> 2
+
+// Output: head -> 1 <-> 2
+
+// Explanation: All duplicate occurrences of 1 are deleted.
+
+
+//Class representing a node in a DLL
+class Node {
+public: 
+    int data;
+    Node* prev;
+    Node* next;
+
+    //Constructor to initialize node with given value 
+    Node(int value) {
+        data = value;
+        prev = nullptr;
+        next = nullptr;
+    }
+};
+
+class Solution {
+public: 
+    Node* head = nullptr;
+
+    //Function to insert a node at then end of list 
+    void insertAtEnd(int value) {
+        Node* newNode = new Node(value);
+        if (!head) {
+            head = newNode;
+            return;
+        }
+        Node* current = head;
+        while(current->next) {
+            current = current->next;
+        }
+        current->next = newNode;
+        newNode->prev = current;
+    }
+
+    //Function to remove duplicate values form a sorted doubly linked list 
+    Node* removeDuplicates() {
+        if (!head) return nullptr;
+
+        Node* current = head;
+
+        while (current != nullptr && current->next != nullptr) {
+            Node* nextDistinct = current->next;
+
+            //Skip and delete all nodes with the same value as current 
+            while (nextDistinct != nullptr && nextDistinct->data == current->data) {
+                Node* duplicateNode = nextDistinct;
+                nextDistinct = nextDistinct->next;
+                delete duplicateNode; //Free memory of duplicate node
+            }
+
+            //Connect current node to the next distinct node 
+            current->next = nextDistinct;
+            if (nextDistinct != nullptr) {
+                nextDistinct->prev = current;
+            }
+
+            //Move to the next node
+            current = current->next;
+        }
+
+        return head;
+    }
+
+    //Function to print list 
+    void printList() {
+        Node* current = head;
+        while(current) {
+            cout << current->data << " ";
+            current = current->next;
+        }
+        cout << endl;
+    }
+};
+
+
+//Driver Code 
+int main() {
+    Solution sol;
+
+    //Initialize list values (with duplicates) 
+    vector<int> values = {1, 2, 2, 2, 3, 4, 4, 5, 5, 6};
+    for (int value : values) {
+        sol.insertAtEnd(value);
+    }
+
+    cout << "Original List: ";
+    sol.printList();
+
+    //Remove duplicate nodes (keep only one occurrrence)
+    sol.removeDuplicates();
+
+    cout << "After Removing Duplicates: ";
+    sol.printList();
+
+    return 0;
+}
+
+TC: O(N)
+The code traverses the ll using a current pointer.
+Even the inner loop scanning for duplicates, every node is visited exactly once, 
+making the time complexity linear relative to the number of nodes N.
+
+Why the TC is O(N) and not O(N^2)?
+In this algo, the inner loop pointer (nextDistinct) moves forward to find the next unique value,
+and then the outer loop pointer (current) jumps directly to that new location. We never 
+go backward, and we never re-evaluate nodes we have already checked.
+Eg: 1 <-> 1 <-> 1 <-> 2 <-> 3
+Outer loop starts: current points to the first 1.
+Inner loop starts: nextDistinct checks the second 1 (duplicate delete it) then the third 1 (duplicate, delete it) 
+then stops at 2 (distinct)
+Outer loop updates: current is connected to 2 and in the next step, current jumps straight to 2.
+The outerloop competely skipped over the nodes that the inner loop already processed.
+
+SC: O(1)
