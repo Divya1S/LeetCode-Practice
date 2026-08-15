@@ -1,0 +1,165 @@
+ Given a linked list containing ‘N’ head nodes where every node in the linked list contains two pointers:
+
+‘Next’ points to the next node in the list
+‘Child’ pointer to a linked list where the current node is the head
+
+Each of these child linked lists is in sorted order and connected by a 'child' pointer. 
+Your task is to flatten this linked list such that all nodes appear in a single layer or level in a 'sorted order'.
+
+5  ->  10  ->  19  ->  28
+ |      |       |       |
+ 7      20      22      35
+ |              |       |
+ 8              50      40
+ |
+ 30
+
+ What you need to do:
+You need to merge all these vertical columns together so that the entire structure becomes one single column, 
+completely sorted in ascending order.
+
+5
+ |
+ 7
+ |
+ 8
+ |
+ 10
+ |
+ 19
+ |
+ 20
+ |
+ 22
+ |
+ 28
+ |
+ 30
+ |
+ 35
+ |
+ 40
+ |
+ 50
+
+Brute Force:
+Ignore the existing sorted structure collect every single nodes value into a dynamic array (vector) sort the array 
+and build a completely new flatten linked list from the sorted array.
+1. Initialize an emtpy arr to store the node values.
+2. Traverse through the main list (using the next pointer). For each horizontal node, traverse downwards (using the child pointer) and push every value in arr.
+3. Sort the array in ascending order.
+4. Create a new dummy node. Iterate through the sorted array and create new nodes, connecting then sequentially using their child pointers.
+5. Return the flattened list starting from dummy->child 
+
+class Solution {
+private:
+    //Helper function to convert the array back to a child-linked list 
+    ListNode* convertArrToLinkedList(vector<int>& arr) {
+        ListNode* dummy = new ListNode(-1);
+        ListNode* temp = dummy;
+        for (int i = 0; i < arr.size(); i++) {
+            temp->child = new ListNode(arr[i]);
+            temp = temp->child;
+        }
+        return dummy->child; //We don't want to give user dummy node real start of our newly build list is whatever is attatched directly below dummy node.
+
+    }
+
+public:
+    ListNode* flattenLinkedList(ListNode* head) {
+        vector<int> arr;
+
+        //Traverse the entire 2D structure 
+        ListNode* curr = head;
+        while (curr != nullptr) {
+            ListNode* currChild = curr;
+            while (currChild != nullptr) {
+                arr.push_back(currChild->val);
+                currChild = currChid->child;
+            }
+            curr = curr->next;
+        }
+
+        //Sort the collected values 
+        sort(arr.begin(), arr.end());
+
+        //Create a new list
+        return convertArrToLinkedList(arr);
+    }
+}
+
+Let N be the number of head nodes (horizontal) and M be the average number of child nodes (vertical) per head. Let X = N * M (total number of nodes in the entire structure)
+
+TC: O(X log X)
+Traversing the nodes takes O(X)
+Sorting the array takes O(XlogX)
+Creating new linked list takes O(X)
+The dominant factor is sorting step.
+
+SC: O(X)
+We use O(X) auxiliary space to store the values in the array, and another O(X) space to create the completely new linked list.
+
+
+Optimal Approach:
+Since each vertical list is already sorted we can optimize this by merging them similar to the "Merge Two Sorted Lists" algorithm.
+Instead of merging from left to right (Which forces us to merge growing lists repeatedly over a long distance) we recursively go to the end of the next chain and merge backwards.
+Base Case: If head is NULL or head->next is NULL return head (single column is already flattened)
+Recursive Call: Recursively call flattenLinkedList on head->next. This flattens the rest of list and returns its merged head.
+Merge: Now, merge the current column (head) with already flattened right side list.
+During the merge, we compare the node values, connect the smaller node to the child pointer and move forward. We also explicitly set the next pointer of the final merged nodes to NULL.
+
+class Solution {
+private:
+    //Helper function to merge two sorted linked lists using child pointers 
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        //Create a dummy node to simplify the merge logic
+        ListNode* dummy = new ListNode(-1);
+        ListNode* res = dummy;
+
+        while (l1 != nullptr && l2 != nullptr) {
+            if (l1->val < l2->val) {
+                res->child = l1;
+                res = l1;
+                l1 = l1->child;
+            }else {
+                res->child = l2;
+                res = l2;
+                l2 = l2->child;
+            }
+            res->next = nullptr; //Ensure horizontal pointers are disconnected 
+        }
+
+        //Attach the remaining nodes 
+        if (l1 != nullptr) {
+            res->child = l1;
+        }else {
+            res->child = l2;
+        }
+        return dummy->child;
+    }
+
+public: 
+    ListNode* flattenLinkedList(ListNode* head) {
+        //Base case: empty list or we reached the last horizontal node 
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+
+        //Recursively flatten the rest of the list on the right 
+        ListNode* mergedHead = flattenLinkedList(head->next);
+
+        //Merge the current column with the flattened list from right 
+        return mergeTwoLists(head, mergedHead);
+    }
+};
+
+Let N be the number of main head nodes and M be the average number of child nodes per head.
+
+TC: O(N^2 * M)
+It is not O(N * M) coz we merge the last two lists (size 2M) then merge that with the 3rd last list (size 3M) and so on.
+The total merge operations sum up as 2M + 3M + 4M + ..... + NM = O(N^2 + M)
+While this bounds the merging time its highly optimal regarding space and does not require allocating whole new data structure like the Brute Force does.
+
+SC: O(N)
+Space is directly proportional to recursion stack depth. 
+Since we recursively go to the end of the N horizontal nodes before we start merging the call stack goes N levels deep.
