@@ -1,0 +1,109 @@
+Problem Statement 
+Given the head of sorted doubly linked list of distinct positive integers and a target 
+value, find all pairs of nodes in the list whose sum is exactly equal to the target.
+
+You need to return a list of pairs containing the data of the two nodes.
+
+Examples
+Example 1:
+
+Input: head -> 1 <-> 2 <-> 4 <-> 5 <-> 6 <-> 8 <-> 9, target = 7
+
+Output: [(1, 6), (2, 5)]
+
+Explanation:
+
+1 + 6 = 7
+
+2 + 5 = 7
+
+These are the only pairs in the list that sum up to 7.
+
+Example 2:
+
+Input: head -> 1 <-> 5 <-> 6, target = 6
+
+Output: [(1, 5)]
+
+Explanation: Only the pair (1, 5) sums up to 6.
+
+Example 3:
+
+Input: head -> 1 <-> 2 <-> 3 <-> 4, target = 9
+
+Output: []
+
+Explanation: No two elements in the list add up to 9, so we return an empty list.
+
+The optimal approach uses the two-pointer technique. Coz the DLL is already sorted, we can
+place one pointer (left) at the head and another pointer (right) at the tail of the list.
+We then calculate the sum of the values at the left and right pointer.
+
+If the sum matches the target, we store the pair and move both pointers inward.
+
+If the sum is strictly less than the target, we need a larger value, so we move the left 
+pointer one step forward.
+
+If the sum is strictly greater than the target, we need a smaller value, so we move 
+the right pointer one step backward.
+
+class Node {
+public: 
+    int data;
+    Node* next;
+    Node* prev;
+
+    Node(int data) {
+        this->data = data;
+        this->next = nullptr;
+        this->prev = nullptr;
+    }
+};
+
+//helper function to find the tail of the DLL
+Node* findTail(Node* head) {
+    Node* tail = head;
+    while(tail != nullptr && tail->next != nullptr) {
+        tail = tail->next;
+    }
+    return tail;
+}
+
+vector<pair<int, int>> findPairsWithGivenSum(Node* head, int target) {
+    vector<pair<int, int>> ans;
+    if (head == nullptr) return ans;
+
+    Node* left = head;
+    Node* right = findTail(head);
+
+    //We iterate as long as left and right don't cross each other 
+    //and they don't point to the same node 
+    while (left != nullptr && right != nullptr && left->data < right->data) {
+        int currentSum = left->data + right->data;
+
+        if (currentSum == target) {
+            ans.push_back({left->data, right->data});
+            left = left->next;
+            right = right->prev;
+        }
+        else if (currentSum < target) {
+            left = left->next; //We need a bigger sum 
+        }
+        else {
+            right = right->prev; //We need a smaller sum 
+        }
+    }
+
+    return ans;
+}
+
+TC: O(N)
+Find the tail of the doubly linked list takes O(N) where N is the number of nodes.
+The two pointer traversal takes O(N) at worst coz O(N) at worst coz left and right 
+pointers traverse the list from opposite ends and meet in the middle without overlapping.
+TT: O(N) + O(N) = O(N)
+
+SC: O(1)
+We are only using two pointers (left and right) to traverse the list. 
+No extra space or auxiliary data structure is used.
+
