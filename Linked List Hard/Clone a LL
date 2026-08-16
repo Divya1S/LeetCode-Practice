@@ -1,0 +1,124 @@
+You are given a special linked list of length n where each node contains an additional pointer called random. This random pointer can point to any node in the linked list or it can be null.
+
+Your task is to create a deep copy (or clone) of this linked list.
+
+A deep copy means:
+
+You must create n brand-new nodes.
+
+Each new node must have the exact same value as its corresponding original node.
+
+The next pointers of the new nodes must link together in the exact same order as the original list.
+
+The random pointers of the new nodes must point to the new nodes in your copied list, perfectly mirroring how the random pointers connected the nodes in the original list.
+
+Crucial Rule: None of the pointers in your new list should point back to any nodes in the original list. You must return the head of this brand-new, completely independent copied list.
+
+// Brute Force: (Using Hash Map)
+// The hardest part of this problem is the random pointer. If a node's random pointer points 
+// to a node completely at the end of the list, how do we connect our copied node to a copied version of that end node if we have not created it yet?
+// The easiest way is to use a Hash Map (Dictionary)
+// 1. Make a complete copy of every single node and store it in a map:
+//     Original Node -> Copied Node
+// 2. Loop through the list a second time. Now, we can easily link our copied nodes together by looking up the correct connections in our map.
+
+// class Solution {
+// public:
+//     Node* copyRandomList(Node* head) {
+//         if (head == nullptr) return nullptr;
+
+//         //Map to store the relationship: Original Node -> Copied Node
+//         unordered_map<Node*, Node*> nodeMap;
+
+//         Node* curr = head;
+
+//         //First pass to create all the copied nodes (without links)
+//         while (curr != nullptr) {
+//             nodeMap[curr] = new Node(curr->val);
+//             curr = curr->next;
+//         }
+
+//         curr = head;
+
+//         //Step 2: Second pass to assign the next and random pointers 
+//         while (curr != nullptr) {
+//             //The next of the copied node should be the copy of the originals next 
+//             nodeMap[curr]->next = nodeMap[curr->next];
+
+//             //The random of the copied node should be the copy of the originals random 
+//             nodeMap[curr]->random = nodeMap[curr->random];
+
+//             curr = curr->next;
+//         }
+
+//         //Return the head of the completely copied list 
+//         return nodeMap[head];
+//     }
+// };
+
+// TC: O(N) 
+// We traverse the ll exactly twice.
+// N + N = 2N which simplifies to O(N)
+
+// SC: O(N)
+// We use unordered_map to store exactly N key-value pairs (Original Nodes -> Copied Nodes)
+// which takes extra memory 
+
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if (head == nullptr) return nullptr;
+        
+        Node* curr = head;
+
+        //Insert copied nodes directly after original nodes 
+        //Eg: A -> B becomes A -> A` -> B -> B`
+        while (curr != nullptr) {
+            Node* copyNode = new Node(curr->val);
+            copyNode->next = curr->next;
+            curr->next = copyNode;
+
+            curr = copyNode->next; //Move to the next original node
+        }
+
+        curr = head;
+
+        //Assign random pointers for the copied nodes 
+        while (curr != nullptr) {
+            if (curr->random != nullptr) {
+                //The copy's random is the original random's next node(which is the copy of random)
+                curr->next->random = curr->random->next;
+            }
+            curr = curr->next->next; //Skip over the copied node to the next original 
+        }
+
+        //Seperate the original and copied list 
+        curr = head;
+        Node* dummy = new Node(-1);
+        Node* copyCurr = dummy;
+
+        while (curr != nullptr) {
+            //Extract the copied node 
+            copyCurr->next = curr->next;
+            copyCurr = copyCurr->next;
+
+            //Restore the original lists next pointer
+            curr->next = curr->next->next;
+
+            //Move forward
+            curr = curr->next;
+        }
+
+        Node* newHead = dummy->next;
+        delete dummy; 
+        return newHead;
+    }
+};
+
+TC: O(N)
+We traverse the list 3 times (once to insert, once to link randoms, once to separate).
+3N operations simplify to a linear time complexity of O(N)
+
+SC: O(1)
+We do not use any extra data structure like hash map.
+The only extra memory is the nodes we created for the copied list.
