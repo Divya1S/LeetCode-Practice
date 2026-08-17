@@ -1,0 +1,117 @@
+Problem Statement:
+You are given a stack of integers. Your task is to sort the stack such that the greatest elements are placed on the top of the stack (descending order from top to bottom)
+
+Rules and Constraints:
+1. You must sort the stack using recursion 
+2. You are not allowed to use any loop constructs (eg: for and while)
+3. You are not allowed to use any additonal data structure (eg: arrays, vectors, queues or another auxiliary stack)
+4. You may only use standard stack operations:
+    push(): Insert an element at the top 
+    pop(): Remove the top element 
+    top() / peek(): View the top element 
+    empty()/ isEmpty(): Check if the stack is empty 
+
+Example 1
+
+Input Stack: [4, 1, 3, 2] (where 2 is the top element and 4 is the bottom element)
+
+Output Stack: [1, 2, 3, 4] (where 4 is the top element and 1 is the bottom element)
+
+Explanation: After sorting, the elements are arranged so that the largest number (4) is at the top, followed by 3, 2, and the smallest number (1) at the bottom.
+
+Example 2
+
+Input Stack: [11, 2, 32, 3, 41] (where 41 is the top element)
+
+Output Stack: [2, 3, 11, 32, 41] (where 41 is the top element)
+
+Explanation: The stack is rearranged to maintain a strict descending order from the top of the stack down to the bottom.
+
+Example 3
+
+Input Stack: [1]
+
+Output Stack: [1]
+
+Explanation: A stack with only a single element is already considered sorted.
+
+Sorting a stack recursively involves two main steps: 
+Emptying the stack by pulling out elements one by one.
+Then pushing them back into the stack using a helper function that guarantees they are inserted in sorted order.
+
+class Solution {
+private: 
+    //helper function to insert an element into a sorted stack 
+    void sortedInsert(stack<int>& s, int element) {
+        //Base case: If the stack is emtpy or the element we want to insert 
+        //is greater than or equal to the top element, place it on top 
+        if (s.empty() || s.top() <= element) {
+            s.push(element);
+            return;
+        }
+
+        //If the element is smaller than the top, we need to dig deeper 
+        ////Remove the top element hold it temporarily 
+        int topElement = s.top();
+        s.pop();
+
+        //Recursively try to insert our element into the remaining stack 
+        sortedInsert(s, element);
+
+        //Put the temporarily held element back on the top 
+        s.push(topElement);
+    }
+
+public: 
+    //Main function to sort the entire stack 
+    void sortStack(stack<int>& s) {
+        //Base case: If the stack is empty, there is nothing left to sort 
+        if (s.empty()) {
+            return;
+        }
+
+        //Remove the top element and hold it 
+        int topElement = s.top();
+        s.pop();
+
+        //Recursively sort the rest of the stack 
+        sortStack(s);
+
+        //Insert the held elements back to its correct sorted positon 
+        sortedInsert(s, topElement);
+    }
+};
+
+//Example usage:
+int main() {
+    stack<int> s;
+    s.push(4);
+    s.push(1);
+    s.push(3);
+    s.push(2);
+
+    Solution obj;
+    obj.sortStack(s);
+
+    cout << "Sorted stack (descending order): ";
+    while (!s.empty()) {
+        cout << s.top() << " ";
+        s.pop();
+    }
+
+    return 0;
+}
+
+TC: O(N^2)
+The sortStack function is called recursively N times to empty the stack.
+For every element we pull out, we call sortedInsert to put it back.
+In worst case scenario (if stack is already sorted in the opposite order)
+sortedInsert will have to recursively pop out every element currently in the stack 
+to place the new one at the very bottom.
+Inserting an element takes O(N) time and we do this N times, leading to N*N = O(N^2)
+
+SC: O(N)
+Why? This space comes purely form the recursion call stack.
+However, coz sortStack pauses to wait for the next call to finish, it leaves N function frames on the computers internal call stack holding the topElement variables.
+sortedInsert also uses up to N stack frames at a time. 
+Thus, the memory overhead scales linearly with the number of elements
