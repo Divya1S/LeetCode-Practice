@@ -1,0 +1,116 @@
+Problem Statement
+You are given a stack of integers. Your task is to reverse the elements of the stack using recursion.
+
+Rules & Constraints:
+
+You must reverse the stack using recursion only.
+
+You are not allowed to use any loop constructs (e.g., for, while).
+
+You are not allowed to use any extra auxiliary data structures (like arrays, queues, strings, or another stack) to hold the elements.
+
+You may only use standard stack operations:
+
+push(): Insert an element at the top.
+
+pop(): Remove the top element.
+
+top() / peek(): View the top element.
+
+empty() / isEmpty(): Check if the stack is empty.
+
+
+Examples
+Example 1
+
+Input Stack: [1, 2, 3, 4] (where 4 is the top element and 1 is the bottom element)
+
+Output Stack: [4, 3, 2, 1] (where 1 is the top element and 4 is the bottom element)
+
+Explanation: The stack is completely reversed. The element that was at the bottom (1) is now at the top, and the top element (4) is now at the bottom.
+
+Example 2
+
+Input Stack: [3, 2, 1, 7, 6] (where 6 is the top element)
+
+Output Stack: [6, 7, 1, 2, 3] (where 3 is the top element)
+
+Explanation: Reversing the stack perfectly flips the order of all elements without using any extra arrays or queues.
+
+The code relies on two recursive functions. The main function pulls out all the elements until the stack is empty. As the recursion unwinds, it uses a helper function to push each held element to the very bottom of the stack.
+
+class Solution {
+private:
+    //Helper function to insert an element at the very bottom of the stack 
+    void insertAtBottom(stack<int>& s, int element) {
+        //Base case: If the stack is empty, we have reached the bottom 
+        //We can now push our element 
+        if (s.empty()) {
+            s.push(element);
+            return;
+        }
+
+        //If the stack is not empty, we need to remove the current top out of way 
+        int topElement = s.top();
+        s.pop();
+
+        //Recursively dig down to the bottom of the stack 
+        insertAtBottom(s, element);
+
+        //Once the element is placed at the bottom, push the temporarily held elements back on top 
+        s.push(topElement);
+    }
+
+public:
+    //Main function to reverse the stack 
+    void reverseStack(stack<int>& s) {
+        //Base case: If the stack is empty, stop recursing 
+        if (s.empty()) {
+            return;
+        }
+
+        //Hold the top element in the current function frame and remove it 
+        int topElement = s.top();
+        s.pop();
+
+        //Recursively reverse rest of the remaining stack
+        reverseStack(s);
+
+        //Insert the held element at the very bottom of the newly reversed stack 
+        insertAtBottom(s, topElement);
+    }
+};
+
+//Example usage 
+int main() {
+    stack<int> s;
+    s.push(1);
+    s.push(2);
+    s.push(3);
+    s.push(4); //currently 4 is at the top
+
+    Solution obj;
+    obj.reverseStack(s);
+
+    cout << "Reversed stack (top to bottom): ";
+    while (!s.empty()) {
+        cout << s.top() << " ";
+        s.pop();
+    }
+    //Output will be: 1 2 3 4
+
+    return 0;
+}
+
+TC: O(N^2)
+The reverseStack function makes N recursive calls to empty the stack
+Every time it unwinds it calls the helper function insertAtBottom
+The insertAtBottom function also takes O(K) time where K is the current size of stack
+coz it has to recursively pop all elements to reach the bottom.
+
+This creates a series of operations: 1 + 2 + 3 + ... + N which in math sums up to N(N+1)/2
+This leaves us the TC of O(N^2)
+
+SC: O(N)
+Recursion uses memory via systems internal call stack.
+
