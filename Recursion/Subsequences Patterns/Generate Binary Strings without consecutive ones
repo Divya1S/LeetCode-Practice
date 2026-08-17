@@ -1,0 +1,108 @@
+Problem Statement 
+Given an integer n return all binary strings of length n that do not contain consecutive 1s.
+Return the result in lexicographically increasing order.
+(A binary string is a string consisting only characters '0' and '1')
+
+Real World Analogy: The Parking Lot
+Imagine you have 3 parking spaces in a row (n = 3).
+
+0 means the space is Empty.
+
+1 means a Car is parked there.
+
+The Golden Rule is: Cars cannot park right next to each other (maybe they need extra room to open their doors).
+
+Let's look at all the possible ways to fill those 3 parking spaces:
+
+0 0 0 (All empty) -> Allowed!
+
+0 0 1 (One car at the end) -> Allowed!
+
+0 1 0 (One car in the middle) -> Allowed!
+
+0 1 1 (Cars in middle and end) -> NOT ALLOWED! (Two cars are touching)
+
+1 0 0 (One car at the start) -> Allowed!
+
+1 0 1 (Cars at the edges, empty space between) -> Allowed!
+
+1 1 0 (Cars at start and middle) -> NOT ALLOWED! (Touching)
+
+1 1 1 (Full lot) -> NOT ALLOWED! (Touching)
+
+If you gather up only the Allowed combinations and read them like words, you get: 000, 001, 010, 100, and 101.
+
+That is exactly what the problem is asking you to generate and print out.
+
+Examples
+Example 1:
+
+Input: n = 3
+
+Output: ["000", "001", "010", "100", "101"]
+
+Explanation: All binary strings of length 3 that do not contain consecutive 1s.
+
+Example 2:
+
+Input: n = 2
+
+Output: ["00", "01", "10"]
+
+Explanation: All binary strings of length 2 that do not contain consecutive 1s.
+
+Subsequences Pattern:
+The logic perfectly mirrors the subsequence Pick and Don't Pick pattern.
+At every index from 0 to n-1 the algo makes a choice:
+
+1. Always pick a 0: You can append a '0' to the current string no matter what the previous chracter was.
+
+2. Conditionally Pick a 1: You can append a '1' only if the string is currently empty or the last added character was not a '1'
+
+This decision tree branches out exactly like a standard subsequence generation problem, pruning the branches where two 1s would be placed together.
+
+void generate(int n, string curr, vector<string>& result) {
+    //Base case: if length is n, add to result 
+    if (curr.length() == n) {
+        result.push_back(curr);
+        return;
+    }
+
+    //Always try adding '0'
+    generate(n, curr + "0", result);
+
+    //Add '1' only if previous char is not '1'
+    if (curr.empty() || curr.back() != '1') {
+        generate(n, curr + "1", result);
+    }
+}
+
+int main() {
+    //Input length n
+    int n = 3;
+
+    //Vector to store results 
+    vector<string> result;
+
+    //Start recursion with empty string
+    generate(n, "", result);
+
+    //Print results 
+    for (string& s : result) {
+        cout << s << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+
+TC: O(2^n) 
+Since each position has up to 2 choices (adding 0 or adding 1)
+The algo explores a binary recursion tree.
+Though some branches (consecutive 1s) are pruned, the upper bound remains exponential.
+
+SC: O(n)
+The maximum depth of the recursive call stack is n.
+If we ignore the space required to store the result array 
+The auxiliary space taken by the curr string and recursion stack depth scales linearly with n.
+
