@@ -1,0 +1,127 @@
+Problem Statement 
+Given n pairs of parentheses, write a function to generate all combinations of well-formed 
+(valid) parentheses.
+
+Eg: 1
+Input: n = 3
+Output: ["((()))", "(()())", "(())()", "()(())", "()()()"]
+
+Eg: 2
+Input: n = 1
+Output: ["()"]
+
+Brute Force: 
+The simplest way to solve this is to generate all possible sequences of length 2n using ( and ).
+Once a sequence is generated, we check if it is valid (well-formed).
+
+Algo:
+Recursively add either a ( or ) until the string reaches length 2n.
+Once the length is 2n use a validator function to check if the parentheses are balanced.
+The validator ensures that at no point does the count of ) exceed ( and at the end of the string 
+the counts are exactly equal (balance is 0)
+
+//Check if a string has valid parentheses 
+bool isValid(string s) {
+    int balance = 0;
+    for (char c : s) {
+        if (c == '(') balance++;
+        else balance--;
+
+        //If closing brackets exceed opening brackets at any point 
+        if (balance < 0) return false;
+    }
+    return balance == 0; //if balance == 0 then it will return true else it will return false (for condition balance != 0)
+}
+
+void generateAll(string curr, int n, vector<string>& res) {
+    //Base case: string reached max length (2 * n)
+    if (curr.length() == 2 * n) {
+        if (isValid(curr)) {
+            res.push_back(curr);
+        }
+        return;
+    }
+}
+
+//Generate all combinations 
+generateAll(curr + '(', n, res);
+generateAll(curr + ')', n, res);
+
+vector<string> generateParenthesis(int n) {
+    vector<string> res;
+    generateAll("", n, res);
+    return res;
+}
+
+int main() {
+    int n = 3;
+    vector<string> result = generateParenthesis(n);
+    for (string s : result) cout << s << endl;
+    return 0;
+}
+
+TC: O(2^(2n) * n)
+There are 2^2n possible strings of length 2n.
+For each string the validation step takes O(n) time.
+
+SC: O(n) 
+For the recursive call stack depth (the maximum depth is 2n)
+This does not include the space used to store the valid results.
+
+
+Optimal (Backtracking)
+Instead of generating all possible strings and throwing away the invalid ones at the end, we can 
+build the strings strategically so we only generate valid combinations. 
+We do this by keeping track of the count of opening and closing parentheses.
+
+Algo:
+1. Start with an empty string and initialize counters: open = 0 and close = 0;
+
+2. Rule 1: We can only add an opening parenthesis ( if we have not used all n of them yet 
+    if (open < n)
+
+3. Rule 2: We can only add a closing parenthesis ) if doing so would not make it unmatched 
+    if (close < open)
+
+4. Base Case: If the string length reaches 2n, its guaranteed to be valid, so we add it to our result.
+
+void backtrack(string curr, int open, int close, int n, vector<string>& res) {
+    //Base case: reached max length, string is guaranteed valid 
+    if (curr.length() == 2 * n) {
+        res.push_back(curr);
+        return;
+    }
+
+    //Add '(' if we have not used all 'n' opening brackets 
+    if (open < n) {
+        backtrack(curr + '(', open + 1, close, n, res);
+    }
+
+    //Add ')' if there are unmatched opening brackets available 
+    if (close < open) {
+        backtrack(curr + ')', open, close + 1, n, res);
+    }
+}
+
+vector<string> generateParenthesis(int n) {
+    vector<string> res;
+    backtrack("", 0, 0, n, res);
+    return res;
+}
+
+int main() {
+    int n = 3;
+    vector<string> result = generateParenthesis(n);
+    for (string s : result) cout << s << endl;
+    return 0;
+}
+
+TC: O(C(n) * n)
+Here C(n) is the nth Catalan number which calculates the exact number of valid parenthesis combinations.
+The formula for C(n) is roughly 4^n / (n * sqrt(n))
+Since each of the C(n) strings takes O(n) time to build, the total time is proportional to O(C(n) * n)
+
+SC: O(n)
+For the maximum recursion stack depth (which is 2n) 
+Storing the answers take O(C(n) * n) space.
+
