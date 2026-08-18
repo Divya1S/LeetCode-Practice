@@ -1,0 +1,121 @@
+Power Set: Print all the possible subsequences of the String 
+
+Problem Statement:
+Given the string find all the possible subsequences of the string.
+
+What are subsequences?
+A subsequence is a sequence derived from another sequence by deleting some or no elements 
+without changing the order of the remaining elements.
+
+Eg1:
+Input: str = "abc"
+Output: [a, ab, abc, ac, b, bc, c]
+The given string has 2^3 - 1 = 7 non-empty subsequences (or 8 if including the empty string "")
+
+Eg2: 
+Input: str = "aa"
+Output: [a, a, aa]
+The given string has 3 non-empty subsequences.
+
+Approach 1: Bit Manipulation
+Algo:
+Every character in the string has 2 choices: either it is included in the subsequence or excluded.
+For a string of length n, there are exactly 2^n possible subsequences.
+We can map these choices to binary numbers from 0 to 2^n-1
+If the ith bit of the number is set to 1 we include the ith character of the string
+if its 0 we exculde it 
+
+class Solution {
+public: 
+    //Function to return all subsequences of string s 
+    vector<string> getSubsequences(string s) {
+        int n = s.size();
+
+        //Total Subsequences = 2^n
+        int total = 1 << n;
+        vector<string> subsequences;
+
+        //Iterate over all bit masks from 0 to 2^n-1
+        for (int mask = 0; mask < total; mask++) {
+            string subseq = "";
+
+            //Check each bit position in mask 
+            for (int i = 0; i < n; i++) {
+                //If i-th bit of mask is set, include s[i]
+                if (mask & (1 << i)) {
+                    subseq += s[i];
+                }
+            }
+
+            //Only store non-empty subsequences (or store all based on need)
+            if (subseq.length() > 0) {
+                subsequences.push_back(subseq);
+            }
+        }
+        return subsequences;
+    }
+};
+
+TC: O(2^n * n) 
+We loop 2^n times (total number of subsets)
+For each subset we loop n times to check the individual bits 
+
+SC: O(1)
+Aux space is constant
+If we consider the array to store all subsequences, it takes O(2^n * n) space.
+
+
+Approach 2: Recursion / Backtracking (Pick and Don't Pick)
+This method uses a decision tree.
+We start from the first character and make a choice.
+Do I include this character in my current subsequence or not?
+We explore the include path by adding the characters and recursing to the next index
+We explore the exclude path by skipping the characters and recursing
+Once we hit the end of the string we have built a complete subsequence.
+
+class Solution {
+public:
+    //Helper recursive function to generate subsequences 
+    void helper(string &s, int index, string current, vector<string>& result) {
+        //Base case: If index reaches string length, add current subsequence 
+        if (index == s.size()) {
+            if (current.length() > 0) { //Omit if you want the empty string too
+                result.push_back(current);
+            }
+            return;
+        }
+
+        //Choice 1: Include the current character 
+        helper(s, index + 1, current + s[index], result);
+
+        //Choice 2: Exclude the current character 
+        helper(s, index + 1, current, result);
+    }
+
+    vector<string> getSubsequence(string s) {
+        vector<string> result;
+        helper(s, 0, "", result);
+        return result;
+    }
+};
+
+int main() {
+    string = "abc";
+    Solution sol;
+    vector<string> subsequences = sol.getSubsequences(s);
+
+    for (string subseq : subsequences) {
+        cout << subseq << " ";
+    }
+    cout << endl;
+    return 0;
+}
+
+TC: O(2^n) 
+At each character we branch out into 2 recursive calls (Pick and Don't Pick)
+We generate 2^n nodes in the recursion tree.
+
+SC: O(n)
+Aux space
+The recursion call stack reaches maximum depth n 
+
