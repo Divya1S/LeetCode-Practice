@@ -1,0 +1,37 @@
+Problem Statement:
+Given an integer array, return the length of the longest strictly increasing subsequence
+
+Input: arr = [10, 9, 2, 5, 3, 7, 101, 18]
+Output: 4
+The longest increasing subsequence is [2 3 7 101]
+
+int lengthOfLIS(vector<int>& arr) {
+    int n = arr.size();
+    if (n == 0) return 0;
+
+    //dp[i] stores the length of LIS ending at index i 
+    vector<int> dp(n, 1);
+    int maxLength = 1;
+
+    for (int i = 0; i < n; i++) {
+        for (prev = 0; prev < i; prev++) {
+            if (arr[prev] < arr[i]) {
+                dp[i] = max(dp[i], 1 + dp[prev]);
+            }
+        }
+        maxLength = max(maxLength, dp[i]);
+    }
+    return maxLength;
+}
+
+int main() {
+    vector<int> arr = {10, 9, 2, 5, 3, 7, 101, 18};
+    cout << "Length of LIS: " << lengthOfLIS(arr) << endl;
+    return 0;
+}
+
+TC: O(n^2)
+Two nested loop iterating over the array to build the DP table.
+
+Space Complexity: O(n)
+Space used by 1D DP array 
