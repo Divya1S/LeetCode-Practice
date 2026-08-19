@@ -1,0 +1,100 @@
+Generate All Subsequences (Basic Recursion/Backtracking)
+
+Given an array of integers or strings generate and print all possible subsequences.
+A subsequence is a sequence derived from the array by deleting some or no elements without 
+changing the order of the remaining elements.
+
+Input: arr = [3, 1, 2]
+Output: [], [3], [1], [2], [3,1], [3,2], [1,2], [3,1,2]
+
+void printSubsequences(int ind, vector<int>& ds, vector<int>& arr, int n) {
+    //Base Case: When we reach the end of the array 
+    if (ind == n) {
+        if (ds.empty()) {
+            cout << "{}" << endl;
+        } else {
+            for (auto it : ds) {
+                cout << it << " ";
+            }
+            cout << endl;
+        }
+        return;
+    }
+
+    //Pattern: Take the current element 
+    ds.push_back(arr[ind]);
+    printSubsequences(ind + 1, ds, arr, n);
+
+    //Backtrack to remove the element before moving to Not Take 
+    ds.pop_back();
+
+    //Pattern: Do not take the current element 
+    printSubsequences(ind + 1, ds, arr, n);
+}
+
+int main() {
+    vector<int> arr = {3,1,2};
+    vector<int> ds;
+    printSubsequences(0, ds, arr, arr.size());
+    return 0;
+}
+
+TC: O(2^n * n)
+There are 2^n possible subsequences and printing/copying each takes O(n) time.
+
+SC: O(n)
+For the recursion stack space and the auxiliary data (ds) holding at most n elements.
+
+1. Using a std::string (For String Subsequences)
+If your input is a string instead of an array, you use a string to store the current sequence. 
+Strings are much easier to print because you dont need a for loop.
+
+void printSubsequences(int ind, string& ds, string& str, int n) {
+    if (ind == n) {
+        if (ds.empty()) cout << "{}" << endl;
+        else cout << ds << endl; //Direct printing
+        return;
+    }
+
+    //Take 
+    ds.push_back(str[ind]);
+    printSubsequences(ind + 1, ds, str, n);
+
+    //Backtrack
+    ds.pop_back()l
+
+    //Not Take 
+    printSubsequences(ind + 1, ds, str, n);
+}
+
+2. Using a std::stack (No Iterators)
+A stack follows LIFO (Last In, First Out). 
+The primary challenge is that stacks do not support for (auto it : ds). 
+To print it, you either have to pop elements off a copy of the stack, or use a workaround.
+
+void printSubsequences(int ind, stack<int>& ds, vector<int>& arr, int n) {
+    if (ind == n) {
+        if (ds.empty()) {
+            cout << "{}" << endl;
+        }else {
+            //Must make a copy coz popping to print destroys the stack 
+            stack<int> temp = ds;
+            while (!temp.empty()) {
+                cout << temp.top() << " ";
+                temp.pop();
+            }
+            cout << endl;
+        }
+        return;
+    }
+
+    //Take 
+    ds.push(arr[ind]); 
+    printSubsequences(ind + 1, ds, arr, n);
+
+    //Backtrack
+    ds.pop(); 
+
+    //Not Take 
+    printSubsequences(ind + 1, ds, arr, n);
+}
