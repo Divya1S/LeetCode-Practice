@@ -1,0 +1,46 @@
+Problem Statement:
+Generate or print all possible subsequences of a given array that have an exactly length of K.
+
+Input: arr = [1, 2, 3, 4] k = 2
+Output: [1,2], [1,3], [1,4], [2,3], [2,4], [3,4]
+
+
+void subsequencesOfSizeK(int ind, vector<int>& ds, vector<int>& arr, int k, int n) {
+    //Pruning/Base Case: If the data structure reaches size K, print and stop exploring this branch
+    if (ds.size() == k) {
+        for (auto it : ds) cout << it << " ";
+        cout << endl;
+        return;
+    }
+
+    //Base case: Reached the end of the array but size is not k 
+    if (ind == n) {
+        return;
+    }
+
+    //Take 
+    ds.push_back(arr[ind]);
+    subsequencesOfSizeK(ind + 1, ds, arr, k, n);
+
+    //Backtrack 
+    ds.pop_back();
+
+    //Not Take 
+    subsequencesOfSizeK(ind + 1, ds, arr, k, n);
+}
+
+int main() {
+    vector<int> arr = {1, 2, 3, 4};
+    int k = 2;
+    vector<int> ds;
+    subsequencesOfSizeK(0, ds, arr, k, arr.size());
+    return 0;
+}
+
+TC: O(n choose k * k)
+We only traverse down the depth k valid elements.
+The number of such sequences is n choose k we take O(k) time to print each.
+
+SC: O(k)
+The depth of the recursion tree and the auxiliary data structure will max out at k.
+
