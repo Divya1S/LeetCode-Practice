@@ -1,0 +1,42 @@
+Count Subsequences with Specific Property (Sum == Target)
+
+Problem Statement:
+Find the total number of subsequences of an array that sum up to a specific target integer.
+
+Input: arr = [1, 2, 1] target = 2
+Output: 2
+The subsequences are [1, 1] at indices 0 and 2 and 
+[2] at index 1. 
+So total count = 2
+
+int countSubsequences(int ind, int currentSum, vector<int>& arr, int target, int n) {
+    //Base condition
+    if (ind == n) {
+        if (currentSum == target) return 1; //Found 1 valid subsequence
+        else return 0; //Not valid 
+    }
+
+    //Take the element 
+    int take = countSubsequences(ind + 1, currentSum + arr[ind], arr, target, n);
+
+    //Not take the element 
+    int notTake = countSubsequences(ind + 1, currentSum, arr, target, n);
+
+    //Return total count from both branches 
+    return take + nonTake;
+}
+
+int main() {
+    vector<int> arr = {1, 2, 1};
+    int target = 2;
+    cout << "Count: " << countSubsequences(0, 0, arr, target, arr.size()) << endl;
+    return 0;
+}
+
+TC: O(2^n)
+We explore two choices (take or not take) for every element.
+(Can be optimized to O(n * target) using DP/Memoization)
+
+SC: O(n)
+For recursion call stack space.
+
