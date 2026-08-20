@@ -1,0 +1,101 @@
+Problem Statement
+Given an array of integers, write a program to find the sums of all possible subsets of the array. 
+The sums can be returned in any order.
+
+Examples
+Example 1:
+
+Input: arr = [2, 3]
+
+Output: [0, 2, 3, 5]
+
+Explanation: The subsets of the given array are [], [2], [3], and [2, 3]. 
+The corresponding sums of these subsets are 0, 2, 3, and 5.
+
+Example 2:
+
+Input: arr = [5, 2, 1]
+
+Output: [0, 1, 2, 3, 5, 6, 7, 8]
+
+Explanation: The subsets are [], [1], [2], [1, 2], [5], [1, 5], [2, 5], and [1, 2, 5]. 
+Summing the elements of each subset yields the output above.
+
+Bitmasking Approach (Iterative) 
+In this approach we use binary numbers to represent subsets. For an array of size N 
+ther are exactly 2^N subsets. 
+We can iterate from 0 to (2^N) - 1
+If the jth bit of a number i is set(that is 1) we include arr[j] in the current subset sum.
+
+class Solution {
+public: 
+    vector<int> subsetSums(vector<int> arr, int n) {
+        vector<int> ans;
+        int totalSubsets = 1 << n; //Equivalent to 2^n
+
+        //Iterate through all possible subsets using numbers from 0 to 2^n-1
+        for (int i = 0; i < totalSubsets; i++) {
+            int currentSum = 0;
+            for (int j = 0; j < n; j++) {
+                //Check if jth bit is set in i 
+                if (i & (1 << j)) {
+                    currentSum += arr[j];
+                }
+            }
+            ans.push_back(currentSum);
+        }
+
+        //Optional: Sort the answer if output need to be strictly increasing 
+        //sort(ans.begin(), ans.end())
+        return ans;
+    }
+}
+
+TC: O(N*2^N)
+The outer loop runs 2^N times.
+Inner loop checks exactly N bits for each subset.
+
+SC: O(2^N)
+For storing all the subset sums in the ans array.
+
+
+2. Recursive Approach (Pick and Non-Pick)
+This is the classic backtracking approach. 
+At every index, we make two recursive calls: one where we pick the current element (add it to our sum) and 
+one where we do not pick the current element. Once we reach the end of the array, we push the collected sum into our answer list.
+
+class Solution {
+private:
+    void solve(int ind, int sum, vector<int>& arr, int n, vector<int>& ans) {
+        // Base case: if we have traversed the entire array
+        if (ind == n) {
+            ans.push_back(sum);
+            return;
+        }
+        
+        // Choice 1: Pick the element at the current index
+        solve(ind + 1, sum + arr[ind], arr, n, ans);
+        
+        // Choice 2: Do not pick the element
+        solve(ind + 1, sum, arr, n, ans);
+    }
+
+public:
+    vector<int> subsetSums(vector<int> arr, int n) {
+        vector<int> ans;
+        // Start the recursion from index 0 with an initial sum of 0
+        solve(0, 0, arr, n, ans);
+        
+        // sort(ans.begin(), ans.end());
+        return ans;
+    }
+};
+
+TC: O(2^N)
+Since we branch out into two possibilities at each of the N steps, there are exactly 2^N recursive calls made.
+This is faster than the bitmasking approach coz we maintain a running sum instead of iterating N time sto recalculate it.
+
+SC: O(2^N)
+To store the array of results.
+Plus O(N) auxiliary stack space used by recursion tree (the maximum depth of the call stack is N)
+
