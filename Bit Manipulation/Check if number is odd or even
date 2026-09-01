@@ -1,0 +1,39 @@
+Problem Statement: Check if a Number is Odd or Even
+
+Description:
+Given an integer n, write a program to determine if it is an odd number or an even number using bit manipulation, 
+without using the modulo (%) operator.
+
+Approach: Using Bitwise AND (& 1)
+If you look at the binary representation of any integer, the rightmost bit (Least Significant Bit or LSB) determines whether the number is odd or even.
+
+Odd numbers always end in 1 (e.g., $3$ is 011, $5$ is 101, $9$ is 1001).
+Even numbers always end in 0 (e.g., $2$ is 010, $4$ is 100, $8$ is 1000).
+
+By performing a bitwise AND between the number $n$ and 1 (which is 001 in binary), we effectively mask all the higher bits to 0 and isolate only that very last bit.
+If n & 1 evaluates to 1, the number is odd.
+If n & 1 evaluates to 0, the number is even.
+
+bool isOdd(int n) {
+    //Performs bitwise AND with 1
+    //Returns true (1) if odd, false (0) if even 
+    return (n & 1) == 1;
+}
+
+int main() {
+    int testCases[] = {0, 1, 2, 15, 42, -7, -10};
+    
+    for (int n : testCases) {
+        if (isOdd(n)) {
+            std::cout << n << " is ODD.\n";
+        } else {
+            std::cout << n << " is EVEN.\n";
+        }
+    }
+    
+    return 0;
+}
+
+TC: O(1)
+SC: O(1)
+
