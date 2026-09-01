@@ -1,0 +1,61 @@
+Problem Statement: Swap Two Numbers Description:
+Given two integers, a and b, write a program to swap their values.
+You must provide two approaches:
+Standard Approach: Swap the numbers using a third temporary variable.
+
+Bit Manipulation Approach: Swap the numbers in-place without using any extra variables by utilizing the bitwise XOR (^) operator.
+
+Approach 1: Using a Temporary Variable
+We temporarily store the value if a so it is not lost when we overwrite it with b.
+
+void swapWithTemp(int &a, int &b) {
+    int temp = a; //Store the original value of a 
+    a = b; //Assign b to a 
+    b = temp; //Assign the original value of a to b 
+}
+
+int main() {
+    int a = 5; 
+    int b = 10;
+
+    cout << "Before swap (Temp): a = " << a << ", b = " << b << "\n";
+    swapWithTemp(a,b);
+    cout << "After swap (Temp): a = " << a << ", b = " << b << "\n";
+
+    return 0;
+}
+
+TC: O(1)
+coz the operations take a constant amount of time.
+
+SC: O(1) 
+auxiliary space though it expicity requires one extra variable (temp) in memory.
+
+Approach 2: Uing Bitwise XOR 
+
+void swapWithXOR(int &a, int &b) {
+    //Check if the memory addresses are the same to prevent zeroing out the value 
+    if(&a != &b) {
+        a = a ^ b; //a now holds the XOR of original a and original b
+        b = a ^ b; //b becomes (a ^ b) ^ b = a
+        a = a ^ b; //a becomes (a ^ b) ^ a = b
+    }
+}
+
+int main() {
+    int a = 15;
+    int b = 25;
+    
+    cout << "Before swap (XOR): a = " << a << ", b = " << b << "\n";
+    swapWithXOR(a, b);
+    cout << "After swap (XOR): a = " << a << ", b = " << b << "\n";
+    
+    return 0;
+}
+
+TC: O(1)
+as it strictly executes 3 constant-time bitwise operator 
+
+SC: O(1)
+with absolutely zero extra variables 
+
