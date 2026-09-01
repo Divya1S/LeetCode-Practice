@@ -1,0 +1,70 @@
+Problem Statement: Set the i-th Bit
+Given a number n and an integer i, write a program to set the i-th bit from the right (0-indexed) of n to 1. If the i-th bit is already 1, the number should remain unchanged.
+You must provide two approaches:
+Brute Force Approach: Avoid bitwise operators entirely by calculating powers of 2 and using basic arithmetic to check and update the bit.
+Bit Manipulation Approach: Use the bitwise left shift (<<) and bitwise OR (|) operators for an optimal O(1) solution.
+
+Brute Force: (Using Arithemetic)
+The i-th bit represents the value 2^i.
+We can check if this bit is a 1 by dividing our number by 2^i and checking if the result is odd or even. 
+If it evaluates to even (0) the bit is currently 0 and we can set it to 1 by simplying adding 2^i to our number.
+
+int setBitBruteForce(int n, int i) {
+    //Calculate 2^i using a simple loop to avoid bitwise shifts 
+    int powerOfTwo = 1;
+    for (int k = 0; k < i; ++k) {
+        powerOfTwo *= 2; 
+    }
+
+    //Check if the i-th bit is 0 using division and modulo 
+    //If (n / 2^i) % 2 is 0, the bit at position i is 0
+    if ((n / powerOfTwo) % 2 == 0) {
+        n += powerOfTwo; //Add 2^i to set the bit to 1
+    }
+
+    return n;
+}
+
+int main() {
+    int n = 9;  // Binary: 1001
+    int i = 1;  // We want to set the bit at index 1
+    
+    std::cout << "Original number: " << n << "\n";
+    int result = setBitBruteForce(n, i);
+    std::cout << "After setting " << i << "-th bit (Brute Force): " << result << "\n"; 
+    // Expected Output: 11 (Binary: 1011)
+    
+    return 0;
+}
+
+TC: O(i)
+coz we run a loop i times to calculate 2^i.
+SC: O(1)
+
+Approach 2: Using the Left Shift and OR (<< and ||)
+We create a mask by taking a number 1 and shifting it left by i positions (1 << i).
+This creates a binary number where only the i-th bit is 1 and all others are 0.
+
+We apply the bitwise OR (|) operator between the original number n and this mask 
+the i-th bit becomes 1 (coz anything ORed with 1 is 1) and all other bits remain completely unchanged (coz anything ORed with 0 stays its original value).
+
+int setBitLeftShift(int n, int i) {
+    //Create the mask (1 shifted by i) and apply bitwise OR 
+    return n | (1 << i);
+}
+
+int main() {
+    int n = 9;  // Binary: 1001
+    int i = 2;  // We want to set the bit at index 2
+    
+    std::cout << "Original number: " << n << "\n";
+    int result = setBitLeftShift(n, i);
+    std::cout << "After setting " << i << "-th bit (Left Shift): " << result << "\n";
+    // Expected Output: 13 (Binary: 1101)
+    
+    return 0;
+}
+
+TC: O(1) as creating the mask and applying the bitwise OR takes a single constant-time CPU instance.
+
+SC: O(1)
