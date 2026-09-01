@@ -1,0 +1,74 @@
+Problem Statement: Check if the i-th Bit is Set
+Description: Given a number n and an integer i, 
+Write a program to check whether the i-th bit from the right (0-indexed, where the Least Significant Bit is at index 0) in the binary representation of n is set to 1 or 0.
+You must provide two approaches: 
+Left Shift Approach: Using the bitwise left shift operator (<<).
+Right Shift Approach: Using the bitwise right shift operator (>>).
+
+Using the Left Shift (<<):
+In this we create a mask. We take the number 1 (which has only its 0-th bit set) and shift it left by i positions.
+This creates a binary mask where only the i-th bits is 1.
+When we perform a bitwise AND (&) between the mask and our original number n, all other bits are cleared to 0. If the i-th bit in n was a 1, the result will be non-zero.
+
+bool isBitSetLeftShift(int n, int i) {
+    //Create a mask by shifting 1 to the left by i positions 
+    int mask = 1 << i;
+
+    //Perform bitwise AND. If the result is non-zero the bit is set 
+    if ((n & mask) != 0) {
+        return true;
+    }
+    return false;
+}
+
+int main() {
+    int n = 13; // Binary: 1101
+    int i = 2;  // We want to check the bit at index 2 (which is 1)
+    
+    cout << "Using Left Shift:\n";
+    if (isBitSetLeftShift(n, i)) {
+        cout << "The " << i << "-th bit of " << n << " is SET (1).\n";
+    } else {
+        cout << "The " << i << "-th bit of " << n << " is NOT SET (0).\n";
+    }
+    
+    return 0;
+}
+
+TC: O(1)
+SC: O(1)
+
+Approach 2: Using Right Shift (>>) 
+Instead of moving the 1 to align with the bit we want to check, we move the target bit to align with 1. 
+By shifting the number n to the right by i positions the i-th bit becomes the Least Significant Bit (the rightmost bit).
+We then perform a bitwise AND (&) with 1. 
+If the result is 1 the bit was set.
+
+bool isBitSetRightShift(int n, int i) {
+    //Shift the number n to the right by i positions 
+    int shifted_n = n >> i;
+
+    //Perform bitwise AND with 1. If it equals 1, bit is set 
+    if ((shifted_n & 1) == 1) {
+        return true;
+    }
+    return false;
+}
+
+int main() {
+    int n = 13; // Binary: 1101
+    int i = 1;  // We want to check the bit at index 1 (which is 0)
+    
+    cout << "Using Right Shift:\n";
+    if (isBitSetRightShift(n, i)) {
+        cout << "The " << i << "-th bit of " << n << " is SET (1).\n";
+    } else {
+        cout << "The " << i << "-th bit of " << n << " is NOT SET (0).\n";
+    }
+    
+    return 0;
+}
+
+TC: O(1)
+SC: O(1)
+
