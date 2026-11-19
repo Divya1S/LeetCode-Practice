@@ -56,6 +56,8 @@ for (int i = 0; i < n; i++) {
 
 
 //Disjoint Set Union by Rank and Path Compression 
+vector<int> parent;
+vector<int> rank;
 //Path Compression
 int find(int i, vector<int>& parent) {
 
