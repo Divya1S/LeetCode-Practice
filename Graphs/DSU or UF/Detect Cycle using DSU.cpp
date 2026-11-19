@@ -11,6 +11,9 @@ cycle exists.
 
 class Solution {
 public: 
+    vector<int> parent;
+    vector<int> rank;
+
     //Path Compression
     int find(int i, vector<int>& parent) {
 
@@ -45,9 +48,8 @@ public:
     }
 
     bool detectCycle(int V, vector<int> adj[]) {
-        //declaration of vectors
-        vector<int> parent(V);
-        vector<int> rank(V);
+        parent.resize(V);
+        rank.resize(V);
 
         for (int i = 0; i < V; i++) {
             parent[i] = i;
@@ -58,7 +60,7 @@ public:
             for (int &v : adj[u]) {
 
                 //only process one direction of the undirected graph
-                if(u < v) {
+                if(u <= v) { //using equal to only if self loops are possible in input
                     //pass the parent array to find()
                     int parent_u = find(u, parent);
                     int parent_v = find(v, parent);
