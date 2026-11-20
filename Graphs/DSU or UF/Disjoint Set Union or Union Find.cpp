@@ -59,21 +59,21 @@ for (int i = 0; i < n; i++) {
 vector<int> parent;
 vector<int> rank;
 //Path Compression
-int find(int i, vector<int>& parent) {
+int find(int i) {
 
     if (i == parent[i]) {
         return i;
     }
 
-    return parent[i] = find(parent[i], parent); //path compression
+    return parent[i] = find(parent[i]); //path compression
 }
 
 //Union by Rank
-void unionSets(int x, int y, vector<int>& parent, vector<int>& rank) {
+void unionSets(int x, int y) {
 
-    int x_parent = find(x, parent);
+    int x_parent = find(x);
 
-    int y_parent = find(y, parent);
+    int y_parent = find(y);
 
     if (x_parent == y_parent) {
         return;
