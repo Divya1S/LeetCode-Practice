@@ -15,21 +15,21 @@ public:
     vector<int> rank;
 
     //Path Compression
-    int find(int i, vector<int>& parent) {
+    int find(int i) {
 
         if (i == parent[i]) {
             return i;
         }
 
-        return parent[i] = find(parent[i], parent); //path compression
+        return parent[i] = find(parent[i]); //path compression
     }
 
     //Union by Rank
-    void unionSets(int x, int y, vector<int>& parent, vector<int>& rank) {
+    void unionSets(int x, int y) {
 
-        int x_parent = find(x, parent);
+        int x_parent = find(x);
 
-        int y_parent = find(y, parent);
+        int y_parent = find(y);
 
         if (x_parent == y_parent) {
             return;
@@ -62,14 +62,14 @@ public:
                 //only process one direction of the undirected graph
                 if(u <= v) { //using equal to only if self loops are possible in input
                     //pass the parent array to find()
-                    int parent_u = find(u, parent);
-                    int parent_v = find(v, parent);
+                    int parent_u = find(u);
+                    int parent_v = find(v);
 
                     if(parent_u == parent_v) {
                         return true; //cycle detected
                     }
 
-                    unionSets(u, v, parent, rank);
+                    unionSets(u, v);
                 }
             }
         }
