@@ -71,3 +71,7 @@ public:
 // The adjacency list stores N lists and M esges: O(N + M)
 // The vis array dist array and topological stack and DFS recursion stack 
 // each take O(N) space 
+
+This code works for a DAG only. It does not check whether the graph contains a cycle. If the graph has cycles, the DFS stack does not necessarily give a valid topological ordering, so the shortest-path results may be incorrect.
+
+One advantage of this DAG approach is that it can also handle negative edge weights, provided the graph remains acyclic. Unlike Dijkstra's algorithm, it does not require all weights to be non-negative.
